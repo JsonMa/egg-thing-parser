@@ -51,8 +51,42 @@ exports.thingParser = {
 see [config/config.default.js](config/config.default.js) for more detail.
 
 ## Example
+```js
 
-<!-- example here -->
+// tlv数据解析：thing.tlv.parser
+
+// 输入参数
+0x10 0x01 0x02 0x01 0x02 0x00 0x00... // 十六进制Buffer 
+
+// 输出参数
+{
+  "method": "read", // 枚举值 - ['read', 'write', 'notify', 'reset', 'recovery', 'resp']
+  "params": {
+    "property": {
+      "1": {
+        "value": "xxxx",
+        "time": "xxxxx",
+        "type": "boolean",// 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
+        "resource": "common" // 资源类型 - ['common', 'static', 'combine']
+      },
+    },
+    "event": {
+      "2": {
+        "value": "xxxx",
+        "time": "xxxxx",
+        "type": "boolean",// 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
+        "resource": "common" // 资源类型 - ['common', 'static', 'combine']
+      }
+    },
+    "device": {
+      ...
+    },
+    "system": {
+      ...
+    }
+  }
+}
+```
 
 ## Questions & Suggestions
 
