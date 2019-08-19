@@ -14,7 +14,7 @@ describe('test/thing-parser.test.js', () => {
   after(() => app.close());
   afterEach(mock.restore);
 
-  it('should GET /', () => {
+  it('should attach ', () => {
     return app.httpRequest()
       .get('/')
       .expect('hi, thingParser')

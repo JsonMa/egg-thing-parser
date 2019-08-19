@@ -10,6 +10,7 @@
     "eggPlugin",
     "egg-plugin",
     "thing",
+    "thing model",
     "thing parser",
     "thing-parser"
   ],
@@ -22,10 +23,11 @@
     "egg": "^2.16.0",
     "egg-bin": "^4.11.0",
     "egg-ci": "^1.11.0",
-    "egg-mock": "^3.21.0",
+    "egg-mock": "^3.23.1",
     "eslint": "^5.13.0",
     "eslint-config-egg": "^7.1.0",
-    "husky": "^3.0.3"
+    "husky": "^3.0.3",
+    "validate-branch-name": "^1.0.4"
   },
   "engines": {
     "node": ">=8.0.0"
@@ -37,7 +39,8 @@
     "lint": "eslint .",
     "ci": "egg-bin pkgfiles --check && npm run lint && npm run cov",
     "pkgfiles": "egg-bin pkgfiles",
-    "autod": "autod"
+    "autod": "autod",
+    "branchname": "validate-branch-name"
   },
   "files": [
     "app.js",
