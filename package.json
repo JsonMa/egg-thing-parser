@@ -20,6 +20,7 @@
     "@commitlint/config-conventional": "^8.1.0",
     "autod": "^3.0.1",
     "autod-egg": "^1.1.0",
+    "chance": "^1.0.18",
     "egg": "^2.16.0",
     "egg-bin": "^4.11.0",
     "egg-ci": "^1.11.0",
