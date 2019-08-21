@@ -44,8 +44,8 @@ describe('test/thing/tlv/parser.test.js', () => {
       MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
       const MOCK_TLV_BOOLEAN_VALUE = MOCK_BOOLEAN ? Buffer.from([ 0x01 ]) : Buffer.from([ 0x00 ]);
       const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]);
-      const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_BOOLEAN_VALUE.length + MOCK_TLV_CRC.length;
-      const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_BOOLEAN_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
+      const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + 2 * MOCK_TLV_FUNCTION.length + 2 * MOCK_TLV_BOOLEAN_VALUE.length + MOCK_TLV_CRC.length;
+      const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_BOOLEAN_VALUE, MOCK_TLV_FUNCTION, MOCK_TLV_BOOLEAN_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
 
       const parsedValue = app.thing.tlv.parser.parse(MOCK_TLV_BINARY);
       assert.ok(!!parsedValue, '布尔值物模型实例处理失败');
@@ -216,7 +216,7 @@ describe('test/thing/tlv/parser.test.js', () => {
         const MOCK_BUFFER_LENGTH = Buffer.allocUnsafe(2);
 
         // 内层功能点1
-        const MOCK_INNER_FUNCTION = parseInt('0001000000000010', 2); // dataType: boolean, messageType: property, resourceId: 2
+        const MOCK_INNER_FUNCTION = parseInt('0011000000000010', 2); // dataType: boolean, messageType: property, resourceId: 2
         const MOCK_INNER_TLV_FUNCTION = Buffer.allocUnsafe(2);
         MOCK_INNER_TLV_FUNCTION.writeUInt16BE(MOCK_INNER_FUNCTION); // function
 
