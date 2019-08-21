@@ -238,9 +238,9 @@ describe('test/thing/tlv/parser.test.js', () => {
         assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
         assert.ok(typeof parsedValue.params === 'object', 'params需为对象');
         assert.ok(typeof parsedValue.params.property[1791] === 'object', 'property需包含index为63的对象');
-        assert(parsedValue.params.property[1791].resource === 'common', 'resource需为"common"');
+        assert(parsedValue.params.property[1791].resource === 'combine', 'resource需为"common"');
         assert(parsedValue.params.property[1791].type === 'buffer', 'type需为"buffer"');
-        assert.ok(parsedValue.params.property[1791].value === MOCK_TLV_BUFFER_VALUE.toString('hex'), 'value需为true');
+        assert.ok(Array.isArray(parsedValue.params.property[1791].value), 'value需为true');
         assert.ok(!!parsedValue.params.property[1791].time, '需包含时间参数time');
       });
     });
