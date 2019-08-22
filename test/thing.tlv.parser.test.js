@@ -47,6 +47,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + 2 * MOCK_TLV_FUNCTION.length + 2 * MOCK_TLV_BOOLEAN_VALUE.length + MOCK_TLV_CRC.length;
       const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_BOOLEAN_VALUE, MOCK_TLV_FUNCTION, MOCK_TLV_BOOLEAN_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
 
+      // const BOOLEAN_DATA = Buffer.from('0103200100670000000000caff', 'hex');
       const parsedValue = app.thing.tlv.parser.parse(MOCK_TLV_BINARY);
       assert.ok(!!parsedValue, '布尔值物模型实例处理失败');
       assert(parsedValue.method === 'notify', 'method需为"notify"');
