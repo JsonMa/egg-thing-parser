@@ -186,8 +186,14 @@ describe('test/thing/tlv/parser.test.js', () => {
         const MOCK_TLV_BUFFER_VALUE = Buffer.from(MOCK_BUFFER);
         const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]);
         const BUFFER_VALUE_LENGTH = MOCK_TLV_BUFFER_VALUE.length;
-        const MOCK_BUFFER_LENGTH = Buffer.allocUnsafe(2);
-        MOCK_BUFFER_LENGTH.writeUInt16BE(BUFFER_VALUE_LENGTH);
+        let MOCK_BUFFER_LENGTH = null;
+        if (BUFFER_VALUE_LENGTH > 127) {
+          MOCK_BUFFER_LENGTH = Buffer.allocUnsafe(2);
+          MOCK_BUFFER_LENGTH.writeUInt16BE(BUFFER_VALUE_LENGTH | 128); // eslint-disable-line
+        } else {
+          MOCK_BUFFER_LENGTH = Buffer.allocUnsafe(1);
+          MOCK_BUFFER_LENGTH.writeUInt8(BUFFER_VALUE_LENGTH);
+        }
         const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_BUFFER_LENGTH.length + BUFFER_VALUE_LENGTH + MOCK_TLV_CRC.length;
         const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_BUFFER_LENGTH, MOCK_TLV_BUFFER_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
 
@@ -214,7 +220,7 @@ describe('test/thing/tlv/parser.test.js', () => {
         MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
 
         // 声明外层功能点长度
-        const MOCK_BUFFER_LENGTH = Buffer.allocUnsafe(2);
+        let MOCK_BUFFER_LENGTH = null;
 
         // 内层功能点1
         const MOCK_INNER_FUNCTION = parseInt('0011000000000010', 2); // dataType: boolean, messageType: property, resourceId: 2
@@ -228,7 +234,14 @@ describe('test/thing/tlv/parser.test.js', () => {
         // 外层功能点值
         const MOCK_TLV_BUFFER_VALUE = MOCK_INNER_BUFFER;
         const BUFFER_VALUE_LENGTH = MOCK_TLV_BUFFER_VALUE.length;
-        MOCK_BUFFER_LENGTH.writeUInt16BE(BUFFER_VALUE_LENGTH);
+        if (BUFFER_VALUE_LENGTH > 127) {
+          MOCK_BUFFER_LENGTH = Buffer.allocUnsafe(2);
+          MOCK_BUFFER_LENGTH.writeUInt16BE(BUFFER_VALUE_LENGTH | 128); // eslint-disable-line
+        } else {
+          MOCK_BUFFER_LENGTH = Buffer.allocUnsafe(1);
+          MOCK_BUFFER_LENGTH.writeUInt8(BUFFER_VALUE_LENGTH);
+        }
+
 
         const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_BUFFER_LENGTH.length + BUFFER_VALUE_LENGTH + MOCK_TLV_CRC.length;
         const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_BUFFER_LENGTH, MOCK_TLV_BUFFER_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
@@ -257,8 +270,14 @@ describe('test/thing/tlv/parser.test.js', () => {
         const MOCK_TLV_EXCEPTION_VALUE = Buffer.from(MOCK_STRING);
         const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]);
         const STRING_VALUE_LENGTH = MOCK_TLV_EXCEPTION_VALUE.length;
-        const MOCK_STRING_LENGTH = Buffer.allocUnsafe(2);
-        MOCK_STRING_LENGTH.writeUInt16BE(STRING_VALUE_LENGTH);
+        let MOCK_STRING_LENGTH = null;
+        if (STRING_VALUE_LENGTH > 127) {
+          MOCK_STRING_LENGTH = Buffer.allocUnsafe(2);
+          MOCK_STRING_LENGTH.writeUInt16BE(STRING_VALUE_LENGTH | 128); // eslint-disable-line
+        } else {
+          MOCK_STRING_LENGTH = Buffer.allocUnsafe(1);
+          MOCK_STRING_LENGTH.writeUInt8(STRING_VALUE_LENGTH);
+        }
         const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + STRING_VALUE_LENGTH + MOCK_STRING_LENGTH.length + MOCK_TLV_CRC.length;
         const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_STRING_LENGTH, MOCK_TLV_EXCEPTION_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
 
@@ -285,13 +304,19 @@ describe('test/thing/tlv/parser.test.js', () => {
         const MOCK_FUNCTION = parseInt('1111111111111111', 2); // dataType: string, messageType: static, resourceId: 2047
         const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
         MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
-        const MOCK_TLV_EXCEPTION_VALUE = Buffer.from(JSON.stringify(MOCK_JSON));
+        const MOCK_TLV_STRING_VALUE = Buffer.from(JSON.stringify(MOCK_JSON));
         const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]);
-        const STRING_VALUE_LENGTH = MOCK_TLV_EXCEPTION_VALUE.length;
-        const MOCK_STRING_LENGTH = Buffer.allocUnsafe(2);
-        MOCK_STRING_LENGTH.writeUInt16BE(STRING_VALUE_LENGTH);
+        const STRING_VALUE_LENGTH = MOCK_TLV_STRING_VALUE.length;
+        let MOCK_STRING_LENGTH = null;
+        if (STRING_VALUE_LENGTH > 127) {
+          MOCK_STRING_LENGTH = Buffer.allocUnsafe(2);
+          MOCK_STRING_LENGTH.writeUInt16BE(STRING_VALUE_LENGTH | 128); // eslint-disable-line
+        } else {
+          MOCK_STRING_LENGTH = Buffer.allocUnsafe(1);
+          MOCK_STRING_LENGTH.writeUInt8(STRING_VALUE_LENGTH);
+        }
         const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + STRING_VALUE_LENGTH + MOCK_STRING_LENGTH.length + MOCK_TLV_CRC.length;
-        const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_STRING_LENGTH, MOCK_TLV_EXCEPTION_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
+        const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_STRING_LENGTH, MOCK_TLV_STRING_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
 
         const parsedValue = app.thing.tlv.parser.parse(MOCK_TLV_BINARY);
         assert.ok(!!parsedValue, '整数值物模型实例处理失败');
