@@ -3,6 +3,9 @@
 const mock = require('egg-mock');
 const assert = require('assert');
 const chance = new require('chance')();
+const {
+  crc16ccitt,
+} = require('crc');
 
 describe('test/thing/tlv/parser.test.js', () => {
   let app;
@@ -43,21 +46,21 @@ describe('test/thing/tlv/parser.test.js', () => {
       const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
       MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
       const MOCK_TLV_BOOLEAN_VALUE = MOCK_BOOLEAN ? Buffer.from([ 0x01 ]) : Buffer.from([ 0x00 ]);
-      const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]);
-      const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + 2 * MOCK_TLV_FUNCTION.length + 2 * MOCK_TLV_BOOLEAN_VALUE.length + MOCK_TLV_CRC.length;
-      const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_BOOLEAN_VALUE, MOCK_TLV_FUNCTION, MOCK_TLV_BOOLEAN_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
+      const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + 2 * MOCK_TLV_FUNCTION.length + 2 * MOCK_TLV_BOOLEAN_VALUE.length;
+      const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_BOOLEAN_VALUE, MOCK_TLV_FUNCTION, MOCK_TLV_BOOLEAN_VALUE ], BUFFER_LENGTH);
 
-      // const BOOLEAN_DATA = Buffer.from('0103200100670000000000caff', 'hex');
-      const parsedValue = app.thing.tlv.parser.parse(MOCK_TLV_BINARY);
+      const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+      const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
       assert.ok(!!parsedValue, '布尔值物模型实例处理失败');
-      assert(parsedValue.method === 'notify', 'method需为"notify"');
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
-      assert.ok(typeof parsedValue.params === 'object', 'params需为对象');
-      assert.ok(typeof parsedValue.params.property[1] === 'object', 'property需包含index为1的对象');
-      assert(parsedValue.params.property[1].resource === 'common', 'resource需为"common"');
-      assert(parsedValue.params.property[1].type === 'boolean', 'type需为"boolean"');
-      assert.ok(parsedValue.params.property[1].value === MOCK_BOOLEAN, 'value需为true');
-      assert.ok(!!parsedValue.params.property[1].time, '需包含时间参数time');
+      assert(!!parsedValue.time, '需包含时间参数time');
+      assert(parsedValue.data.method === 'notify', 'method需为"notify"');
+      assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
+      assert.ok(typeof parsedValue.data.params[1] === 'object', 'property需包含index为1的对象');
+      assert(parsedValue.data.params[1].resource === 'common', 'resource需为"common"');
+      assert(parsedValue.data.params[1].type === 'boolean', 'type需为"boolean"');
+      assert(parsedValue.data.params[1].messageType === 'property', 'type需为"property"');
+      assert.ok(parsedValue.data.params[1].value === MOCK_BOOLEAN, 'value需为true');
     });
 
     it('enum tlv binary should be processed successfully', () => {
@@ -72,20 +75,21 @@ describe('test/thing/tlv/parser.test.js', () => {
       MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
       const MOCK_TLV_ENUM_VALUE = Buffer.allocUnsafe(1);
       MOCK_TLV_ENUM_VALUE.writeUInt8(MOCK_ENUM);
-      const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]);
-      const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_ENUM_VALUE.length + MOCK_TLV_CRC.length;
-      const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_ENUM_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
+      const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_ENUM_VALUE.length;
+      const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_ENUM_VALUE ], BUFFER_LENGTH);
 
-      const parsedValue = app.thing.tlv.parser.parse(MOCK_TLV_BINARY);
+      const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+      const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
       assert.ok(!!parsedValue, '枚举值物模型实例处理失败');
-      assert(parsedValue.method === 'notify', 'method需为"notify"');
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
-      assert.ok(typeof parsedValue.params === 'object', 'params需为对象');
-      assert.ok(typeof parsedValue.params.property[3] === 'object', 'property需包含index为1的对象');
-      assert(parsedValue.params.property[3].resource === 'common', 'resource需为"common"');
-      assert(parsedValue.params.property[3].type === 'enum', 'type需为"boolean"');
-      assert.ok(parsedValue.params.property[3].value === MOCK_ENUM, 'value需为true');
-      assert.ok(!!parsedValue.params.property[3].time, '需包含时间参数time');
+      assert(!!parsedValue.time, '需包含时间参数time');
+      assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
+      assert(parsedValue.data.method === 'notify', 'method需为"notify"');
+      assert.ok(typeof parsedValue.data.params[3] === 'object', 'property需包含index为1的对象');
+      assert(parsedValue.data.params[3].resource === 'common', 'resource需为"common"');
+      assert(parsedValue.data.params[3].type === 'enum', 'type需为"boolean"');
+      assert(parsedValue.data.params[3].messageType === 'property', 'type需为"property"');
+      assert.ok(parsedValue.data.params[3].value === MOCK_ENUM, 'value需为true');
     });
 
     it('integer tlv binary should be processed successfully', () => {
@@ -100,20 +104,21 @@ describe('test/thing/tlv/parser.test.js', () => {
       MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
       const MOCK_TLV_INTEGER_VALUE = Buffer.allocUnsafe(4);
       MOCK_TLV_INTEGER_VALUE.writeInt32BE(MOCK_INTEGER);
-      const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]);
-      const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_INTEGER_VALUE.length + MOCK_TLV_CRC.length;
-      const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_INTEGER_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
+      const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_INTEGER_VALUE.length;
+      const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_INTEGER_VALUE ], BUFFER_LENGTH);
 
-      const parsedValue = app.thing.tlv.parser.parse(MOCK_TLV_BINARY);
+      const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+      const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
       assert.ok(!!parsedValue, '整数值物模型实例处理失败');
-      assert(parsedValue.method === 'notify', 'method需为"notify"');
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
-      assert.ok(typeof parsedValue.params === 'object', 'params需为对象');
-      assert.ok(typeof parsedValue.params.property[15] === 'object', 'property需包含index为1的对象');
-      assert(parsedValue.params.property[15].resource === 'common', 'resource需为"common"');
-      assert(parsedValue.params.property[15].type === 'integer', 'type需为"boolean"');
-      assert.ok(parsedValue.params.property[15].value === MOCK_INTEGER, 'value需为true');
-      assert.ok(!!parsedValue.params.property[15].time, '需包含时间参数time');
+      assert(!!parsedValue.time, '需包含时间参数time');
+      assert(parsedValue.data.method === 'notify', 'method需为"notify"');
+      assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
+      assert.ok(typeof parsedValue.data.params[15] === 'object', 'property需包含index为1的对象');
+      assert(parsedValue.data.params[15].resource === 'common', 'resource需为"common"');
+      assert(parsedValue.data.params[15].type === 'integer', 'type需为"boolean"');
+      assert(parsedValue.data.params[15].messageType === 'property', 'type需为"property"');
+      assert.ok(parsedValue.data.params[15].value === MOCK_INTEGER, 'value需为true');
     });
 
     it('float tlv binary should be processed successfully', () => {
@@ -128,26 +133,27 @@ describe('test/thing/tlv/parser.test.js', () => {
       MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
       const MOCK_TLV_FLOAT_VALUE = Buffer.allocUnsafe(4);
       MOCK_TLV_FLOAT_VALUE.writeFloatBE(MOCK_FLOAT);
-      const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]);
-      const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_FLOAT_VALUE.length + MOCK_TLV_CRC.length;
-      const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_FLOAT_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
+      const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_FLOAT_VALUE.length;
+      const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_FLOAT_VALUE ], BUFFER_LENGTH);
 
-      const parsedValue = app.thing.tlv.parser.parse(MOCK_TLV_BINARY);
+      const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+      const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
       assert.ok(!!parsedValue, '整数值物模型实例处理失败');
-      assert(parsedValue.method === 'notify', 'method需为"notify"');
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
-      assert.ok(typeof parsedValue.params === 'object', 'params需为对象');
-      assert.ok(typeof parsedValue.params.property[31] === 'object', 'property需包含index为1的对象');
-      assert(parsedValue.params.property[31].resource === 'common', 'resource需为"common"');
-      assert(parsedValue.params.property[31].type === 'float', 'type需为"float"');
-      assert.ok(parseInt(parsedValue.params.property[31].value) === parseInt(MOCK_FLOAT), 'value需为true');
-      assert.ok(!!parsedValue.params.property[31].time, '需包含时间参数time');
+      assert(!!parsedValue.time, '需包含时间参数time');
+      assert(parsedValue.data.method === 'notify', 'method需为"notify"');
+      assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
+      assert.ok(typeof parsedValue.data.params[31] === 'object', 'property需包含index为1的对象');
+      assert(parsedValue.data.params[31].resource === 'common', 'resource需为"common"');
+      assert(parsedValue.data.params[31].type === 'float', 'type需为"float"');
+      assert(parsedValue.data.params[31].messageType === 'property', 'type需为"property"');
+      assert.ok(parseInt(parsedValue.data.params[31].value) === parseInt(MOCK_FLOAT), 'value需为true');
     });
 
     it('exception tlv binary should be processed successfully', () => {
       const VERSION = Buffer.from([ 0x01 ]);
       const MOCK_EXCEPTION = chance.integer({
-        min: 0,
+        min: 1,
         max: 4294967295,
       });
       const MOCK_TLV_METHOD = Buffer.from([ 0x03 ]); // method:notify
@@ -156,20 +162,21 @@ describe('test/thing/tlv/parser.test.js', () => {
       MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
       const MOCK_TLV_EXCEPTION_VALUE = Buffer.allocUnsafe(4);
       MOCK_TLV_EXCEPTION_VALUE.writeUInt32BE(MOCK_EXCEPTION);
-      const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]);
-      const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_EXCEPTION_VALUE.length + MOCK_TLV_CRC.length;
-      const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_EXCEPTION_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
+      const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_EXCEPTION_VALUE.length;
+      const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_EXCEPTION_VALUE ], BUFFER_LENGTH);
 
-      const parsedValue = app.thing.tlv.parser.parse(MOCK_TLV_BINARY);
+      const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+      const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
       assert.ok(!!parsedValue, '整数值物模型实例处理失败');
-      assert(parsedValue.method === 'notify', 'method需为"notify"');
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
-      assert.ok(typeof parsedValue.params === 'object', 'params需为对象');
-      assert.ok(typeof parsedValue.params.property[63] === 'object', 'property需包含index为63的对象');
-      assert(parsedValue.params.property[63].resource === 'common', 'resource需为"common"');
-      assert(parsedValue.params.property[63].type === 'exception', 'type需为"float"');
-      assert.ok(parseInt(parsedValue.params.property[63].value, 2) === MOCK_EXCEPTION, 'value需为true');
-      assert.ok(!!parsedValue.params.property[63].time, '需包含时间参数time');
+      assert(!!parsedValue.time, '需包含时间参数time');
+      assert(parsedValue.data.method === 'notify', 'method需为"notify"');
+      assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
+      assert.ok(typeof parsedValue.data.params[63] === 'object', 'property需包含index为63的对象');
+      assert(parsedValue.data.params[63].resource === 'common', 'resource需为"common"');
+      assert(parsedValue.data.params[63].type === 'exception', 'type需为"float"');
+      assert(parsedValue.data.params[63].messageType === 'property', 'type需为"property"');
+      assert.ok(parseInt(parsedValue.data.params[63].value, 2) === MOCK_EXCEPTION, 'value需为true');
     });
 
     describe('thing/tlv/parser/buffer', () => {
@@ -184,7 +191,6 @@ describe('test/thing/tlv/parser.test.js', () => {
         const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
         MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
         const MOCK_TLV_BUFFER_VALUE = Buffer.from(MOCK_BUFFER);
-        const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]);
         const BUFFER_VALUE_LENGTH = MOCK_TLV_BUFFER_VALUE.length;
         let MOCK_BUFFER_LENGTH = null;
         if (BUFFER_VALUE_LENGTH > 127) {
@@ -194,25 +200,25 @@ describe('test/thing/tlv/parser.test.js', () => {
           MOCK_BUFFER_LENGTH = Buffer.allocUnsafe(1);
           MOCK_BUFFER_LENGTH.writeUInt8(BUFFER_VALUE_LENGTH);
         }
-        const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_BUFFER_LENGTH.length + BUFFER_VALUE_LENGTH + MOCK_TLV_CRC.length;
-        const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_BUFFER_LENGTH, MOCK_TLV_BUFFER_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
+        const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_BUFFER_LENGTH.length + BUFFER_VALUE_LENGTH;
+        const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_BUFFER_LENGTH, MOCK_TLV_BUFFER_VALUE ], BUFFER_LENGTH);
 
-        const parsedValue = app.thing.tlv.parser.parse(MOCK_TLV_BINARY);
+        const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+        const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
         assert.ok(!!parsedValue, '整数值物模型实例处理失败');
-        assert(parsedValue.method === 'notify', 'method需为"notify"');
         assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
-        assert.ok(typeof parsedValue.params === 'object', 'params需为对象');
-        assert.ok(typeof parsedValue.params.property[127] === 'object', 'property需包含index为63的对象');
-        assert(parsedValue.params.property[127].resource === 'common', 'resource需为"common"');
-        assert(parsedValue.params.property[127].type === 'buffer', 'type需为"buffer"');
-        assert.ok(parsedValue.params.property[127].value === MOCK_TLV_BUFFER_VALUE.toString('hex'), 'value需为true');
-        assert.ok(!!parsedValue.params.property[127].time, '需包含时间参数time');
+        assert(parsedValue.data.method === 'notify', 'method需为"notify"');
+        assert(!!parsedValue.time, '需包含时间参数time');
+        assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
+        assert.ok(typeof parsedValue.data.params[127] === 'object', 'property需包含index为63的对象');
+        assert(parsedValue.data.params[127].resource === 'common', 'resource需为"common"');
+        assert(parsedValue.data.params[127].type === 'buffer', 'type需为"buffer"');
+        assert.ok(parsedValue.data.params[127].value === MOCK_TLV_BUFFER_VALUE.toString('hex'), 'value需为true');
       });
 
       it('buffer [combine] tlv binary should be processed successfully', () => {
         const VERSION = Buffer.from([ 0x01 ]);
         const MOCK_TLV_METHOD = Buffer.from([ 0x03 ]); // method:notify
-        const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]); // crc校验
 
         // 外层功能点
         const MOCK_FUNCTION = parseInt('1011011011111111', 2); // dataType: buffer, messageType: property, resourceId: 1791
@@ -241,21 +247,20 @@ describe('test/thing/tlv/parser.test.js', () => {
           MOCK_BUFFER_LENGTH = Buffer.allocUnsafe(1);
           MOCK_BUFFER_LENGTH.writeUInt8(BUFFER_VALUE_LENGTH);
         }
+        const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_BUFFER_LENGTH.length + BUFFER_VALUE_LENGTH;
+        const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_BUFFER_LENGTH, MOCK_TLV_BUFFER_VALUE ], BUFFER_LENGTH);
 
-
-        const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_BUFFER_LENGTH.length + BUFFER_VALUE_LENGTH + MOCK_TLV_CRC.length;
-        const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_BUFFER_LENGTH, MOCK_TLV_BUFFER_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
-
-        const parsedValue = app.thing.tlv.parser.parse(MOCK_TLV_BINARY);
+        const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+        const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
         assert.ok(!!parsedValue, '整数值物模型实例处理失败');
-        assert(parsedValue.method === 'notify', 'method需为"notify"');
         assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
-        assert.ok(typeof parsedValue.params === 'object', 'params需为对象');
-        assert.ok(typeof parsedValue.params.property[1791] === 'object', 'property需包含index为63的对象');
-        assert(parsedValue.params.property[1791].resource === 'combine', 'resource需为"common"');
-        assert(parsedValue.params.property[1791].type === 'buffer', 'type需为"buffer"');
-        assert.ok(Array.isArray(parsedValue.params.property[1791].value), 'value需为true');
-        assert.ok(!!parsedValue.params.property[1791].time, '需包含时间参数time');
+        assert(parsedValue.data.method === 'notify', 'method需为"notify"');
+        assert(!!parsedValue.time, '需包含时间参数time');
+        assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
+        assert.ok(typeof parsedValue.data.params[1791] === 'object', 'property需包含index为63的对象');
+        assert(parsedValue.data.params[1791].resource === 'combine', 'resource需为"common"');
+        assert(parsedValue.data.params[1791].type === 'buffer', 'type需为"buffer"');
+        assert.ok(typeof parsedValue.data.params[1791].value === 'object', 'value需为object');
       });
     });
 
@@ -268,7 +273,6 @@ describe('test/thing/tlv/parser.test.js', () => {
         const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
         MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
         const MOCK_TLV_EXCEPTION_VALUE = Buffer.from(MOCK_STRING);
-        const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]);
         const STRING_VALUE_LENGTH = MOCK_TLV_EXCEPTION_VALUE.length;
         let MOCK_STRING_LENGTH = null;
         if (STRING_VALUE_LENGTH > 127) {
@@ -278,19 +282,20 @@ describe('test/thing/tlv/parser.test.js', () => {
           MOCK_STRING_LENGTH = Buffer.allocUnsafe(1);
           MOCK_STRING_LENGTH.writeUInt8(STRING_VALUE_LENGTH);
         }
-        const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + STRING_VALUE_LENGTH + MOCK_STRING_LENGTH.length + MOCK_TLV_CRC.length;
-        const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_STRING_LENGTH, MOCK_TLV_EXCEPTION_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
+        const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + STRING_VALUE_LENGTH + MOCK_STRING_LENGTH.length;
+        const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_STRING_LENGTH, MOCK_TLV_EXCEPTION_VALUE ], BUFFER_LENGTH);
+        const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+        const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
 
-        const parsedValue = app.thing.tlv.parser.parse(MOCK_TLV_BINARY);
         assert.ok(!!parsedValue, '整数值物模型实例处理失败');
-        assert(parsedValue.method === 'notify', 'method需为"notify"');
         assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
-        assert.ok(typeof parsedValue.params === 'object', 'params需为对象');
-        assert.ok(typeof parsedValue.params.property[255] === 'object', 'property需包含index为63的对象');
-        assert(parsedValue.params.property[255].resource === 'common', 'resource需为"common"');
-        assert(parsedValue.params.property[255].type === 'string', 'type需为"string"');
-        assert.ok(parsedValue.params.property[255].value === MOCK_STRING, 'value需为true');
-        assert.ok(!!parsedValue.params.property[255].time, '需包含时间参数time');
+        assert(!!parsedValue.time, '需包含时间参数time');
+        assert(parsedValue.data.method === 'notify', 'method需为"notify"');
+        assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
+        assert.ok(typeof parsedValue.data.params[255] === 'object', 'property需包含index为63的对象');
+        assert(parsedValue.data.params[255].resource === 'common', 'resource需为"common"');
+        assert(parsedValue.data.params[255].type === 'string', 'type需为"string"');
+        assert.ok(parsedValue.data.params[255].value === MOCK_STRING, 'value需为true');
       });
 
       it('string [json] tlv binary should be processed successfully', () => {
@@ -305,7 +310,6 @@ describe('test/thing/tlv/parser.test.js', () => {
         const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
         MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
         const MOCK_TLV_STRING_VALUE = Buffer.from(JSON.stringify(MOCK_JSON));
-        const MOCK_TLV_CRC = Buffer.from([ 0x01, 0x02 ]);
         const STRING_VALUE_LENGTH = MOCK_TLV_STRING_VALUE.length;
         let MOCK_STRING_LENGTH = null;
         if (STRING_VALUE_LENGTH > 127) {
@@ -315,19 +319,20 @@ describe('test/thing/tlv/parser.test.js', () => {
           MOCK_STRING_LENGTH = Buffer.allocUnsafe(1);
           MOCK_STRING_LENGTH.writeUInt8(STRING_VALUE_LENGTH);
         }
-        const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + STRING_VALUE_LENGTH + MOCK_STRING_LENGTH.length + MOCK_TLV_CRC.length;
-        const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_STRING_LENGTH, MOCK_TLV_STRING_VALUE, MOCK_TLV_CRC ], BUFFER_LENGTH);
+        const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + STRING_VALUE_LENGTH + MOCK_STRING_LENGTH.length;
+        const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_STRING_LENGTH, MOCK_TLV_STRING_VALUE ], BUFFER_LENGTH);
 
-        const parsedValue = app.thing.tlv.parser.parse(MOCK_TLV_BINARY);
+        const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+        const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
         assert.ok(!!parsedValue, '整数值物模型实例处理失败');
-        assert(parsedValue.method === 'notify', 'method需为"notify"');
         assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
-        assert.ok(typeof parsedValue.params === 'object', 'params需为对象');
-        assert.ok(typeof parsedValue.params.event[2047] === 'object', 'property需包含index为63的对象');
-        assert(parsedValue.params.event[2047].resource === 'static', 'resource需为"common"');
-        assert(parsedValue.params.event[2047].type === 'string', 'type需为"string"');
-        assert.deepStrictEqual(JSON.parse(parsedValue.params.event[2047].value), MOCK_JSON, 'value需为true');
-        assert.ok(!!parsedValue.params.event[2047].time, '需包含时间参数time');
+        assert(parsedValue.data.method === 'notify', 'method需为"notify"');
+        assert(!!parsedValue.time, '需包含时间参数time');
+        assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
+        assert.ok(typeof parsedValue.data.params[2047] === 'object', 'property需包含index为63的对象');
+        assert(parsedValue.data.params[2047].resource === 'static', 'resource需为"common"');
+        assert(parsedValue.data.params[2047].type === 'string', 'type需为"string"');
+        assert.deepStrictEqual(JSON.parse(parsedValue.data.params[2047].value), MOCK_JSON, 'value需为true');
       });
     });
   });

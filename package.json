@@ -1,6 +1,6 @@
 {
   "name": "egg-thing-parser",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "thing model parser",
   "eggPlugin": {
     "name": "thingParser"
@@ -14,7 +14,9 @@
     "thing parser",
     "thing-parser"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "crc": "^3.8.0"
+  },
   "devDependencies": {
     "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^8.1.0",
