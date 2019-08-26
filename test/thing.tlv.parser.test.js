@@ -42,7 +42,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       const MOCK_BOOLEAN = chance.bool();
       const VERSION = Buffer.from([ 0x01 ]);
       const MOCK_TLV_METHOD = Buffer.from([ 0x03 ]); // method
-      const MOCK_FUNCTION = parseInt('0011000000000001', 2); // dataType: boolean, messageType: property, resourceId: 1
+      const MOCK_FUNCTION = parseInt('0011000000000001', 2); // dataType: boolean, message_type: property, resourceId: 1
       const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
       MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
       const MOCK_TLV_BOOLEAN_VALUE = MOCK_BOOLEAN ? Buffer.from([ 0x01 ]) : Buffer.from([ 0x00 ]);
@@ -59,7 +59,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.ok(typeof parsedValue.data.params[1] === 'object', 'property需包含index为1的对象');
       assert(parsedValue.data.params[1].resource === 'common', 'resource需为"common"');
       assert(parsedValue.data.params[1].type === 'boolean', 'type需为"boolean"');
-      assert(parsedValue.data.params[1].messageType === 'property', 'type需为"property"');
+      assert(parsedValue.data.params[1].message_type === 'property', 'type需为"property"');
       assert.ok(parsedValue.data.params[1].value === MOCK_BOOLEAN, 'value需为true');
     });
 
@@ -70,7 +70,7 @@ describe('test/thing/tlv/parser.test.js', () => {
         max: 255,
       });
       const MOCK_TLV_METHOD = Buffer.from([ 0x03 ]); // method:notify
-      const MOCK_FUNCTION = parseInt('0101000000000011', 2); // dataType: enum, messageType: property, resourceId: 3
+      const MOCK_FUNCTION = parseInt('0101000000000011', 2); // dataType: enum, message_type: property, resourceId: 3
       const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
       MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
       const MOCK_TLV_ENUM_VALUE = Buffer.allocUnsafe(1);
@@ -88,7 +88,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.ok(typeof parsedValue.data.params[3] === 'object', 'property需包含index为1的对象');
       assert(parsedValue.data.params[3].resource === 'common', 'resource需为"common"');
       assert(parsedValue.data.params[3].type === 'enum', 'type需为"boolean"');
-      assert(parsedValue.data.params[3].messageType === 'property', 'type需为"property"');
+      assert(parsedValue.data.params[3].message_type === 'property', 'type需为"property"');
       assert.ok(parsedValue.data.params[3].value === MOCK_ENUM, 'value需为true');
     });
 
@@ -99,7 +99,7 @@ describe('test/thing/tlv/parser.test.js', () => {
         max: 65536,
       });
       const MOCK_TLV_METHOD = Buffer.from([ 0x03 ]); // method:notify
-      const MOCK_FUNCTION = parseInt('0111000000001111', 2); // dataType: integer, messageType: property, resourceId: 15
+      const MOCK_FUNCTION = parseInt('0111000000001111', 2); // dataType: integer, message_type: property, resourceId: 15
       const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
       MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
       const MOCK_TLV_INTEGER_VALUE = Buffer.allocUnsafe(4);
@@ -117,7 +117,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.ok(typeof parsedValue.data.params[15] === 'object', 'property需包含index为1的对象');
       assert(parsedValue.data.params[15].resource === 'common', 'resource需为"common"');
       assert(parsedValue.data.params[15].type === 'integer', 'type需为"boolean"');
-      assert(parsedValue.data.params[15].messageType === 'property', 'type需为"property"');
+      assert(parsedValue.data.params[15].message_type === 'property', 'type需为"property"');
       assert.ok(parsedValue.data.params[15].value === MOCK_INTEGER, 'value需为true');
     });
 
@@ -128,7 +128,7 @@ describe('test/thing/tlv/parser.test.js', () => {
         max: 65536,
       });
       const MOCK_TLV_METHOD = Buffer.from([ 0x03 ]); // method:notify
-      const MOCK_FUNCTION = parseInt('1001000000011111', 2); // dataType: float, messageType: property, resourceId: 31
+      const MOCK_FUNCTION = parseInt('1001000000011111', 2); // dataType: float, message_type: property, resourceId: 31
       const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
       MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
       const MOCK_TLV_FLOAT_VALUE = Buffer.allocUnsafe(4);
@@ -146,7 +146,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.ok(typeof parsedValue.data.params[31] === 'object', 'property需包含index为1的对象');
       assert(parsedValue.data.params[31].resource === 'common', 'resource需为"common"');
       assert(parsedValue.data.params[31].type === 'float', 'type需为"float"');
-      assert(parsedValue.data.params[31].messageType === 'property', 'type需为"property"');
+      assert(parsedValue.data.params[31].message_type === 'property', 'type需为"property"');
       assert.ok(parseInt(parsedValue.data.params[31].value) === parseInt(MOCK_FLOAT), 'value需为true');
     });
 
@@ -157,7 +157,7 @@ describe('test/thing/tlv/parser.test.js', () => {
         max: 4294967295,
       });
       const MOCK_TLV_METHOD = Buffer.from([ 0x03 ]); // method:notify
-      const MOCK_FUNCTION = parseInt('1101000000111111', 2); // dataType: exception, messageType: property, resourceId: 63
+      const MOCK_FUNCTION = parseInt('1101000000111111', 2); // dataType: exception, message_type: property, resourceId: 63
       const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
       MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
       const MOCK_TLV_EXCEPTION_VALUE = Buffer.allocUnsafe(4);
@@ -175,7 +175,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.ok(typeof parsedValue.data.params[63] === 'object', 'property需包含index为63的对象');
       assert(parsedValue.data.params[63].resource === 'common', 'resource需为"common"');
       assert(parsedValue.data.params[63].type === 'exception', 'type需为"float"');
-      assert(parsedValue.data.params[63].messageType === 'property', 'type需为"property"');
+      assert(parsedValue.data.params[63].message_type === 'property', 'type需为"property"');
       assert.ok(parseInt(parsedValue.data.params[63].value, 2) === MOCK_EXCEPTION, 'value需为true');
     });
 
@@ -187,7 +187,7 @@ describe('test/thing/tlv/parser.test.js', () => {
           length: 40,
         });
         const MOCK_TLV_METHOD = Buffer.from([ 0x03 ]); // method:notify
-        const MOCK_FUNCTION = parseInt('1011000001111111', 2); // dataType: buffer, messageType: property, resourceId: 127
+        const MOCK_FUNCTION = parseInt('1011000001111111', 2); // dataType: buffer, message_type: property, resourceId: 127
         const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
         MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
         const MOCK_TLV_BUFFER_VALUE = Buffer.from(MOCK_BUFFER);
@@ -221,7 +221,7 @@ describe('test/thing/tlv/parser.test.js', () => {
         const MOCK_TLV_METHOD = Buffer.from([ 0x03 ]); // method:notify
 
         // 外层功能点
-        const MOCK_FUNCTION = parseInt('1011011011111111', 2); // dataType: buffer, messageType: property, resourceId: 1791
+        const MOCK_FUNCTION = parseInt('1011011011111111', 2); // dataType: buffer, message_type: property, resourceId: 1791
         const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
         MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
 
@@ -229,7 +229,7 @@ describe('test/thing/tlv/parser.test.js', () => {
         let MOCK_BUFFER_LENGTH = null;
 
         // 内层功能点1
-        const MOCK_INNER_FUNCTION = parseInt('0011000000000010', 2); // dataType: boolean, messageType: property, resourceId: 2
+        const MOCK_INNER_FUNCTION = parseInt('0011000000000010', 2); // dataType: boolean, message_type: property, resourceId: 2
         const MOCK_INNER_TLV_FUNCTION = Buffer.allocUnsafe(2);
         MOCK_INNER_TLV_FUNCTION.writeUInt16BE(MOCK_INNER_FUNCTION); // function
 
@@ -269,7 +269,7 @@ describe('test/thing/tlv/parser.test.js', () => {
         const VERSION = Buffer.from([ 0x01 ]);
         const MOCK_STRING = chance.string();
         const MOCK_TLV_METHOD = Buffer.from([ 0x03 ]); // method:notify
-        const MOCK_FUNCTION = parseInt('1111000011111111', 2); // dataType: string, messageType: property, resourceId: 255
+        const MOCK_FUNCTION = parseInt('1111000011111111', 2); // dataType: string, message_type: property, resourceId: 255
         const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
         MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
         const MOCK_TLV_EXCEPTION_VALUE = Buffer.from(MOCK_STRING);
@@ -306,7 +306,7 @@ describe('test/thing/tlv/parser.test.js', () => {
           gender: chance.gender(),
         };
         const MOCK_TLV_METHOD = Buffer.from([ 0x03 ]); // method:notify
-        const MOCK_FUNCTION = parseInt('1111111111111111', 2); // dataType: string, messageType: static, resourceId: 2047
+        const MOCK_FUNCTION = parseInt('1111111111111111', 2); // dataType: string, message_type: static, resourceId: 2047
         const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
         MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
         const MOCK_TLV_STRING_VALUE = Buffer.from(JSON.stringify(MOCK_JSON));
