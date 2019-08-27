@@ -3,9 +3,6 @@
 const mock = require('egg-mock');
 const assert = require('assert');
 const chance = new require('chance')();
-const {
-  crc16ccitt,
-} = require('crc');
 
 describe('test/thing/tlv/parser.test.js', () => {
   let app;
@@ -19,20 +16,20 @@ describe('test/thing/tlv/parser.test.js', () => {
   after(() => app.close());
   afterEach(mock.restore);
 
-  describe('Instance Mounting', () => {
-    it('should attach tlv object to application', () => {
-      assert.ok(!!app.thing, '物模型实例thing挂载失败');
+  describe('instance mounting', () => {
+    it('should attach thing object to app', () => {
+      assert.ok(!!app.thing, 'thing实例挂载失败');
     });
 
-    it('should attach tlv object to application', () => {
+    it('should attach tlv object to pp.thing', () => {
       assert.ok(!!app.thing.tlv, 'tlv实例挂载失败');
     });
 
-    it('should attach tlv object to application', () => {
+    it('should attach transfer object to app.thing.tlv', () => {
       assert.ok(typeof app.thing.tlv.transfer === 'object', 'transfer实例挂载失败');
     });
 
-    it('should attach tlv object to application', () => {
+    it('should attach parser object to app.thing.tlv', () => {
       assert.ok(!!app.thing.tlv.parser, 'parser实例挂载失败');
     });
   });
@@ -49,7 +46,9 @@ describe('test/thing/tlv/parser.test.js', () => {
       const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + 2 * MOCK_TLV_FUNCTION.length + 2 * MOCK_TLV_BOOLEAN_VALUE.length;
       const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_BOOLEAN_VALUE, MOCK_TLV_FUNCTION, MOCK_TLV_BOOLEAN_VALUE ], BUFFER_LENGTH);
 
-      const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+      const CRC_TOKEN = Buffer.allocUnsafe(2);
+      const crcCode = app.thing.crc.getCrc16(MOCK_TLV_BINARY);
+      CRC_TOKEN.writeUInt16BE(crcCode);
       const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
       assert.ok(!!parsedValue, '布尔值物模型实例处理失败');
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
@@ -78,7 +77,9 @@ describe('test/thing/tlv/parser.test.js', () => {
       const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_ENUM_VALUE.length;
       const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_ENUM_VALUE ], BUFFER_LENGTH);
 
-      const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+      const CRC_TOKEN = Buffer.allocUnsafe(2);
+      const crcCode = app.thing.crc.getCrc16(MOCK_TLV_BINARY);
+      CRC_TOKEN.writeUInt16BE(crcCode);
       const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
       assert.ok(!!parsedValue, '枚举值物模型实例处理失败');
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
@@ -95,19 +96,21 @@ describe('test/thing/tlv/parser.test.js', () => {
     it('integer tlv binary should be processed successfully', () => {
       const VERSION = Buffer.from([ 0x01 ]);
       const MOCK_INTEGER = chance.integer({
-        min: -65535,
-        max: 65536,
+        min: -65536,
+        max: 65535,
       });
       const MOCK_TLV_METHOD = Buffer.from([ 0x03 ]); // method:notify
       const MOCK_FUNCTION = parseInt('0111000000001111', 2); // dataType: integer, message_type: property, resourceId: 15
-      const MOCK_TLV_FUNCTION = Buffer.allocUnsafe(2);
+      const MOCK_TLV_FUNCTION = Buffer.alloc(2);
       MOCK_TLV_FUNCTION.writeUInt16BE(MOCK_FUNCTION); // function
-      const MOCK_TLV_INTEGER_VALUE = Buffer.allocUnsafe(4);
+      const MOCK_TLV_INTEGER_VALUE = Buffer.alloc(4);
       MOCK_TLV_INTEGER_VALUE.writeInt32BE(MOCK_INTEGER);
       const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_INTEGER_VALUE.length;
       const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_INTEGER_VALUE ], BUFFER_LENGTH);
 
-      const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+      const CRC_TOKEN = Buffer.allocUnsafe(2);
+      const crcCode = app.thing.crc.getCrc16(MOCK_TLV_BINARY);
+      CRC_TOKEN.writeUInt16BE(crcCode);
       const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
       assert.ok(!!parsedValue, '整数值物模型实例处理失败');
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
@@ -136,7 +139,9 @@ describe('test/thing/tlv/parser.test.js', () => {
       const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_FLOAT_VALUE.length;
       const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_FLOAT_VALUE ], BUFFER_LENGTH);
 
-      const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+      const CRC_TOKEN = Buffer.allocUnsafe(2);
+      const crcCode = app.thing.crc.getCrc16(MOCK_TLV_BINARY);
+      CRC_TOKEN.writeUInt16BE(crcCode);
       const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
       assert.ok(!!parsedValue, '整数值物模型实例处理失败');
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
@@ -165,7 +170,9 @@ describe('test/thing/tlv/parser.test.js', () => {
       const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_TLV_EXCEPTION_VALUE.length;
       const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_TLV_EXCEPTION_VALUE ], BUFFER_LENGTH);
 
-      const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+      const CRC_TOKEN = Buffer.allocUnsafe(2);
+      const crcCode = app.thing.crc.getCrc16(MOCK_TLV_BINARY);
+      CRC_TOKEN.writeUInt16BE(crcCode);
       const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
       assert.ok(!!parsedValue, '整数值物模型实例处理失败');
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
@@ -203,7 +210,9 @@ describe('test/thing/tlv/parser.test.js', () => {
         const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_BUFFER_LENGTH.length + BUFFER_VALUE_LENGTH;
         const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_BUFFER_LENGTH, MOCK_TLV_BUFFER_VALUE ], BUFFER_LENGTH);
 
-        const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+        const CRC_TOKEN = Buffer.allocUnsafe(2);
+        const crcCode = app.thing.crc.getCrc16(MOCK_TLV_BINARY);
+        CRC_TOKEN.writeUInt16BE(crcCode);
         const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
         assert.ok(!!parsedValue, '整数值物模型实例处理失败');
         assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
@@ -250,7 +259,9 @@ describe('test/thing/tlv/parser.test.js', () => {
         const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + MOCK_BUFFER_LENGTH.length + BUFFER_VALUE_LENGTH;
         const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_BUFFER_LENGTH, MOCK_TLV_BUFFER_VALUE ], BUFFER_LENGTH);
 
-        const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+        const CRC_TOKEN = Buffer.allocUnsafe(2);
+        const crcCode = app.thing.crc.getCrc16(MOCK_TLV_BINARY);
+        CRC_TOKEN.writeUInt16BE(crcCode);
         const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
         assert.ok(!!parsedValue, '整数值物模型实例处理失败');
         assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
@@ -284,7 +295,9 @@ describe('test/thing/tlv/parser.test.js', () => {
         }
         const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + STRING_VALUE_LENGTH + MOCK_STRING_LENGTH.length;
         const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_STRING_LENGTH, MOCK_TLV_EXCEPTION_VALUE ], BUFFER_LENGTH);
-        const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+        const CRC_TOKEN = Buffer.allocUnsafe(2);
+        const crcCode = app.thing.crc.getCrc16(MOCK_TLV_BINARY);
+        CRC_TOKEN.writeUInt16BE(crcCode);
         const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
 
         assert.ok(!!parsedValue, '整数值物模型实例处理失败');
@@ -322,7 +335,9 @@ describe('test/thing/tlv/parser.test.js', () => {
         const BUFFER_LENGTH = VERSION.length + MOCK_TLV_METHOD.length + MOCK_TLV_FUNCTION.length + STRING_VALUE_LENGTH + MOCK_STRING_LENGTH.length;
         const MOCK_TLV_BINARY = Buffer.concat([ VERSION, MOCK_TLV_METHOD, MOCK_TLV_FUNCTION, MOCK_STRING_LENGTH, MOCK_TLV_STRING_VALUE ], BUFFER_LENGTH);
 
-        const CRC_TOKEN = Buffer.from(crc16ccitt(MOCK_TLV_BINARY).toString(16), 'hex');
+        const CRC_TOKEN = Buffer.allocUnsafe(2);
+        const crcCode = app.thing.crc.getCrc16(MOCK_TLV_BINARY);
+        CRC_TOKEN.writeUInt16BE(crcCode);
         const parsedValue = app.thing.tlv.parser.parse(Buffer.concat([ MOCK_TLV_BINARY, CRC_TOKEN ], BUFFER_LENGTH + 2));
         assert.ok(!!parsedValue, '整数值物模型实例处理失败');
         assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
