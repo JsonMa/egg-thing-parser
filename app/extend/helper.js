@@ -1,5 +1,5 @@
 'use strict';
-
+const ajv = require('ajv')();
 module.exports = {
   /**
    * 参数验证
@@ -9,9 +9,7 @@ module.exports = {
    * @return {Boolean} 验证结果
    */
   async verify(rule, params) {
-    const result = await this.validate(rule, params).catch(error => {
-      throw error;
-    });
+    const validate = ajv.compile(rule);
     return result;
   },
 };
