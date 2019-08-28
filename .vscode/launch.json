@@ -31,7 +31,7 @@
         "run",
         "test-local",
         "--",
-        "--inspect-brk"
+        "--inspect-brk",
       ],
       "protocol": "auto",
       "port": 9229,

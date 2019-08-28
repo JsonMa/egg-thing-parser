@@ -9,7 +9,7 @@ function getRandomDataType() {
     min: 0,
     max: 5,
   });
-  const dataTypeArray = ['boolean', 'enum', 'integer', 'float', 'buffer', 'string'];
+  const dataTypeArray = [ 'boolean', 'enum', 'integer', 'float', 'buffer', 'string' ];
   return dataTypeArray[index];
 }
 
@@ -18,7 +18,7 @@ function getRandomMethod() {
     min: 0,
     max: 4,
   });
-  const methodArray = ['read', 'write', 'notify', 'reset', 'recovery'];
+  const methodArray = [ 'read', 'write', 'notify', 'reset', 'recovery' ];
   return methodArray[index];
 }
 
@@ -35,7 +35,7 @@ function getRandomMessageType() {
     min: 0,
     max: 3,
   });
-  const messageTypeArray = ['system', 'device', 'property', 'event'];
+  const messageTypeArray = [ 'system', 'device', 'property', 'event' ];
   return messageTypeArray[index];
 }
 
@@ -68,7 +68,7 @@ function getRandomResourceType() {
     min: 0,
     max: 2,
   });
-  const resourceTypeArray = ['common', 'static', 'combine'];
+  const resourceTypeArray = [ 'common', 'static', 'combine' ];
   return resourceTypeArray[index];
 }
 
@@ -96,7 +96,7 @@ function getRandomValue(type) {
     case 'integer':
       value = chance.integer({
         min: -256,
-        max: 255,
+        max: -255,
       });
       break;
     case 'float':
@@ -120,11 +120,11 @@ function getRandomValue(type) {
   return value;
 }
 
-function getRandomData() {
+function getRandomData(valueType, resourceType) {
   const messageType = getRandomMessageType();
-  const resourceType = getRandomResourceType();
+  if (!resourceType) resourceType = getRandomResourceType();
   const resourceId = getRandomResource(resourceType);
-  const valueType = getRandomDataType();
+  if (!valueType) valueType = getRandomDataType();
   const value = getRandomValue(valueType);
   return {
     messageType,
@@ -157,8 +157,8 @@ describe('test/thing/tlv/packager.test.js', () => {
       const version = getRandomVersion(); // 版本号
       const method = getRandomMethod(); // 操作码
       let group = null; // 组合功能点信息
-      const data = [getRandomData()]; // 功能点数据
-      const isGroupFunction = chance.bool();
+      const data = [ getRandomData(null, 'common') ]; // 功能点数据
+      const isGroupFunction = false;
       if (isGroupFunction) {
         group = getRandomGroup();
       }
@@ -173,7 +173,17 @@ describe('test/thing/tlv/packager.test.js', () => {
       };
 
       const packagedData = app.thing.tlv.packager.package(jsonData);
-      assert(packagedData);
+      assert(Buffer.isBuffer(packagedData));
+      const parsedData = app.thing.tlv.parser.parse(packagedData);
+      assert(typeof parsedData === 'object');
+      assert(parsedData.version === version, '版本号错误');
+      assert(parsedData.data.method === method, 'method错误');
+      assert(!!parsedData.time, '需包含时间参数time');
+      assert.ok(typeof parsedData.data.params === 'object', 'params需为对象');
+      assert.ok(typeof parsedData.data.params[data[0].resourceId] === 'object', '未找到功能点信息');
+      assert.ok(parsedData.data.params[data[0].resourceId].value === data[0].value, '功能点值错误');
+      assert.ok(parsedData.data.params[data[0].resourceId].type === data[0].valueType, '功能点类型错误');
+      assert.ok(parsedData.data.params[data[0].resourceId].message_type === data[0].messageType, '消息类型错误');
     });
   });
 });
