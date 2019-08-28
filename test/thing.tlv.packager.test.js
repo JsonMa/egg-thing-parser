@@ -7,18 +7,18 @@ const chance = new require('chance')();
 function getRandomDataType() {
   const index = chance.integer({
     min: 0,
-    max: 6,
+    max: 5,
   });
-  const dataTypeArray = [ 'boolean', 'enum', 'integer', 'float', 'buffer', 'exception', 'string' ];
+  const dataTypeArray = ['boolean', 'enum', 'integer', 'float', 'buffer', 'string'];
   return dataTypeArray[index];
 }
 
-function getRandomMethodType() {
+function getRandomMethod() {
   const index = chance.integer({
     min: 0,
     max: 4,
   });
-  const methodArray = [ 'read', 'write', 'notify', 'reset', 'recovery' ];
+  const methodArray = ['read', 'write', 'notify', 'reset', 'recovery'];
   return methodArray[index];
 }
 
@@ -35,7 +35,7 @@ function getRandomMessageType() {
     min: 0,
     max: 3,
   });
-  const messageTypeArray = [ 'system', 'device', 'property', 'event' ];
+  const messageTypeArray = ['system', 'device', 'property', 'event'];
   return messageTypeArray[index];
 }
 
@@ -68,7 +68,7 @@ function getRandomResourceType() {
     min: 0,
     max: 2,
   });
-  const resourceTypeArray = [ 'common', 'static', 'combine' ];
+  const resourceTypeArray = ['common', 'static', 'combine'];
   return resourceTypeArray[index];
 }
 
@@ -88,22 +88,31 @@ function getRandomValue(type) {
       value = chance.bool();
       break;
     case 'enum':
-      value = chance.bool();
+      value = chance.integer({
+        min: 0,
+        max: 255,
+      });
       break;
     case 'integer':
-      value = chance.bool();
+      value = chance.integer({
+        min: -256,
+        max: 255,
+      });
       break;
     case 'float':
-      value = chance.bool();
+      value = chance.floating({
+        min: -256,
+        max: 255,
+      });
       break;
     case 'buffer':
-      value = chance.bool();
-      break;
-    case 'exception':
-      value = chance.bool();
+      value = chance.string({
+        pool: '0123456789abcdef',
+        length: 10,
+      });
       break;
     case 'string':
-      value = chance.bool();
+      value = chance.string();
       break;
     default:
       break;
@@ -117,6 +126,12 @@ function getRandomData() {
   const resourceId = getRandomResource(resourceType);
   const valueType = getRandomDataType();
   const value = getRandomValue(valueType);
+  return {
+    messageType,
+    resourceId,
+    valueType,
+    value,
+  };
 }
 
 describe('test/thing/tlv/packager.test.js', () => {
@@ -142,17 +157,18 @@ describe('test/thing/tlv/packager.test.js', () => {
       const version = getRandomVersion(); // 版本号
       const method = getRandomMethod(); // 操作码
       let group = null; // 组合功能点信息
-      const data = []; // 功能点数据
+      const data = [getRandomData()]; // 功能点数据
       const isGroupFunction = chance.bool();
       if (isGroupFunction) {
         group = getRandomGroup();
       }
 
-
       const jsonData = {
         version,
         method,
-        group,
+        ...group ? {
+          group,
+        } : {},
         data,
       };
 

@@ -45,9 +45,9 @@ module.exports = {
           value: {
             type: [ 'string', 'boolean', 'number' ],
           },
-          required: [ 'messageType', 'resourceId', 'valueType', 'value' ],
-          additionalProperties: false,
         },
+        required: [ 'messageType', 'resourceId', 'valueType', 'value' ],
+        additionalProperties: false,
       },
     }, // 普通功能点数据
   },
