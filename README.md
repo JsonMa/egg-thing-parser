@@ -51,40 +51,65 @@ exports.thingParser = {
 see [config/config.default.js](config/config.default.js) for more detail.
 
 ## Example
-```js
 
-// tlv数据解析：thing.tlv.parser
+### 数据解析
 
-// 输入参数
-0x10 0x01 0x02 0x01 0x02 0x00 0x00... // 十六进制Buffer 
-
-// 输出参数
+```javascript
+// TLV数据解析：app.thing.tlv.parser.parse(buffer)
+// 输入:Buffer
+// 输出:
 {
-  "method": "read", // 枚举值 - ['read', 'write', 'notify', 'reset', 'recovery', 'resp']
-  "params": {
-    "property": {
-      "1": {
-        "value": "xxxx",
-        "time": "xxxxx",
-        "type": "boolean",// 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
-        "resource": "common" // 资源类型 - ['common', 'static', 'combine']
+  version: "1.0.0",
+  time: "xxxxxx", // 时间戳
+  data: {
+    method: "notify", // 枚举值 - ['read', 'write', 'notify', 'reset', 'recovery', 'resp']
+    groupId: 3, // 组合功能点Id
+    params: {
+      3: {
+        value: {
+          1： {
+            value: "xxxx",
+            type: "boolean", // 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
+            resource: "common", // 资源类型 - ['common', 'static', 'combine']
+            message_type: "property" // 消息类型 - ['property', 'device', 'event', 'system']
+          }
+        },
+        type: "buffer", // 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
+        resource: "combine", // 资源类型 - ['common', 'static', 'combine']
+        message_type: "property" // 消息类型 - ['property', 'device', 'event', 'system']
       },
-    },
-    "event": {
-      "2": {
-        "value": "xxxx",
-        "time": "xxxxx",
-        "type": "boolean",// 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
-        "resource": "common" // 资源类型 - ['common', 'static', 'combine']
+      2: {
+        value: "xxxx",
+        type: "boolean", // 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
+        resource: "static", // 资源类型 - ['common', 'static', 'combine']
+        message_type: "property" // 消息类型 - ['property', 'device', 'event', 'system']
       }
-    },
-    "device": {
-      ...
-    },
-    "system": {
-      ...
     }
   }
+}
+```
+
+### 数据封装
+
+```javascript
+// TLV数据封装: app.thing.tlv.packager.package(json)
+// 输出：Buffer
+// 输入：
+{
+  version: '1.0.0', // 版本号：1.0.0
+  method: 'read', // 操作码 [ 'read', 'write', 'notify', 'reset', 'recovery' ]
+  group: {
+    messageType: 'system', // 消息类型 [ 'system', 'device', 'property', 'event' ]
+    resourceId: 123 // 资源值
+  }, // 组合功能点数据
+  data: [{
+      messageType: 'system', // 消息类型 [ 'system', 'device', 'property', 'event' ]
+      resourceId: 2222, // 资源值
+      valueType: 'string', // 数据类型 [ 'boolean', 'enum', 'integer', 'float', 'buffer', 'exception', 'string' ]
+      value: 'asdf'
+    } // 普通功能点数据
+  ]
+  // required: [ 'version', 'method', 'data' ],
 }
 ```
 
