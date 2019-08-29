@@ -72,9 +72,9 @@ function getRandomResourceType() {
   return resourceTypeArray[index];
 }
 
-function getRandomGroup() {
-  const messageType = getRandomMessageType();
-  const resourceId = getRandomResource('combine');
+function getRandomGroup(messageType, resourceId) {
+  if (!messageType) messageType = getRandomMessageType();
+  if (!resourceId) resourceId = getRandomResource('combine');
   return {
     messageType,
     resourceId,
@@ -120,10 +120,10 @@ function getRandomValue(type) {
   return value;
 }
 
-function getRandomData(valueType, resourceType) {
-  const messageType = getRandomMessageType();
+function getRandomData(messageType, valueType, resourceType, resourceId) {
+  if (!messageType) messageType = getRandomMessageType();
   if (!resourceType) resourceType = getRandomResourceType();
-  const resourceId = getRandomResource(resourceType);
+  if (!resourceId) resourceId = getRandomResource(resourceType);
   if (!valueType) valueType = getRandomDataType();
   const value = getRandomValue(valueType);
   return {
@@ -157,15 +157,15 @@ describe('test/thing/tlv/packager.test.js', () => {
       const version = getRandomVersion(); // 版本号
       const method = getRandomMethod(); // 操作码
       let group = null; // 组合功能点信息
-      const data = [ getRandomData(null, 'common') ]; // 功能点数据
-      const isGroupFunction = false;
+      const data = [ getRandomData('system', 'boolean', 'common', 1), getRandomData('system', 'string', 'common', 2) ]; // 功能点数据
+      const isGroupFunction = true;
       if (isGroupFunction) {
-        group = getRandomGroup();
+        group = getRandomGroup('system', 1280);
       }
 
       const jsonData = {
-        version,
-        method,
+        version: '1.0.0',
+        method: 'write',
         ...group ? {
           group,
         } : {},
