@@ -71,18 +71,18 @@ see [config/config.default.js](config/config.default.js) for more detail.
             value: "xxxx",
             type: "boolean", // 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
             resource: "common", // 资源类型 - ['common', 'static', 'combine']
-            message_type: "property" // 消息类型 - ['property', 'device', 'event', 'system']
+            message: "property" // 消息类型 - ['property', 'device', 'event', 'system']
           }
         },
         type: "buffer", // 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
         resource: "combine", // 资源类型 - ['common', 'static', 'combine']
-        message_type: "property" // 消息类型 - ['property', 'device', 'event', 'system']
+        message: "property" // 消息类型 - ['property', 'device', 'event', 'system']
       },
       2: {
         value: "xxxx",
         type: "boolean", // 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
         resource: "static", // 资源类型 - ['common', 'static', 'combine']
-        message_type: "property" // 消息类型 - ['property', 'device', 'event', 'system']
+        message: "property" // 消息类型 - ['property', 'device', 'event', 'system']
       }
     }
   }
