@@ -98,13 +98,9 @@ see [config/config.default.js](config/config.default.js) for more detail.
 {
   version: '1.0.0', // 版本号：1.0.0
   method: 'read', // 操作码 [ 'read', 'write', 'notify', 'reset', 'recovery' ]
-  group: {
-    messageType: 'system', // 消息类型 [ 'system', 'device', 'property', 'event' ]
-    resourceId: 123 // 资源值
-  }, // 组合功能点数据
+  groupId: 123, // 组合功能点值
   data: [{
-      messageType: 'system', // 消息类型 [ 'system', 'device', 'property', 'event' ]
-      resourceId: 2222, // 资源值
+      resourceId: 2222, // 普通功能点值
       valueType: 'string', // 数据类型 [ 'boolean', 'enum', 'integer', 'float', 'buffer', 'exception', 'string' ]
       value: 'asdf'
     } // 普通功能点数据
