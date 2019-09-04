@@ -3,6 +3,7 @@
 const mock = require('egg-mock');
 const assert = require('assert');
 const chance = new require('chance')();
+const _ = require('lodash');
 
 function getRandomDataType() {
   const index = chance.integer({
@@ -68,17 +69,14 @@ function getRandomResourceType() {
     min: 0,
     max: 2,
   });
-  const resourceTypeArray = [ 'common', 'static', 'combine' ];
+  const resourceTypeArray = [ 'common', 'static', 'combine' ]; // 普通、组合、固定
   return resourceTypeArray[index];
 }
 
-function getRandomGroup(messageType, resourceId) {
+function getRandomGroup(messageType, groupId) {
   if (!messageType) messageType = getRandomMessageType();
-  if (!resourceId) resourceId = getRandomResource('combine');
-  return {
-    messageType,
-    resourceId,
-  };
+  if (!groupId) groupId = generateFunction('buffer', messageType, getRandomResource('combine'));
+  return groupId;
 }
 
 function getRandomValue(type) {
@@ -120,15 +118,34 @@ function getRandomValue(type) {
   return value;
 }
 
-function getRandomData(messageType, valueType, resourceType, resourceId) {
-  if (!messageType) messageType = getRandomMessageType();
+/**
+ * 生成功能点buffer
+ *
+ * @param {Number} valueType     - 数据类型
+ * @param {Number} messageType   - 消息类型
+ * @param {Number} resourceId    - 资源值
+ * @return {Buffer} function buffer
+ * @memberof Packager
+ */
+function generateFunction(valueType, messageType, resourceId) {
+  const dataTypeArray = [ 'boolean', 'enum', 'integer', 'float', 'buffer', 'string' ];
+  valueType = dataTypeArray.indexOf(valueType) + 1;
+  const messageTypeArray = [ 'system', 'device', 'property', 'event' ];
+  messageType = messageTypeArray.indexOf(messageType);
+  const valueTypeBits = _.padStart(valueType.toString(2), 3, '0'); // exp: '011'
+  const messageTypeBits = _.padStart(messageType.toString(2), 2, '0'); // exp: '01'
+  const resourceIdBits = _.padStart(resourceId.toString(2), 11, '0'); // exp: '00000000011'
+  return parseInt(`${valueTypeBits}${messageTypeBits}${resourceIdBits}`, 2);
+}
+
+function getRandomData(valueType, messageType, resourceType) {
   if (!resourceType) resourceType = getRandomResourceType();
-  if (!resourceId) resourceId = getRandomResource(resourceType);
-  if (!valueType) valueType = getRandomDataType();
-  const value = getRandomValue(valueType);
+  const resourceId = getRandomResource(resourceType); // 生成资源ID
+  if (!messageType) messageType = getRandomMessageType(); // 生成消息类型
+  if (!valueType) valueType = getRandomDataType(); // 生成数据类型
+  const value = getRandomValue(valueType); // 生成数据值
   return {
-    messageType,
-    resourceId,
+    resourceId: generateFunction(valueType, messageType, resourceId),
     valueType,
     value,
   };
@@ -153,37 +170,26 @@ describe('test/thing/tlv/packager.test.js', () => {
   });
 
   describe('thing/tlv/packager', () => {
-    it('json data should be packaged successfully', () => {
+    it('group function data should be packaged successfully', () => {
       const version = getRandomVersion(); // 版本号
       const method = getRandomMethod(); // 操作码
-      let group = null; // 组合功能点信息
-      const data = [ getRandomData('system', 'boolean', 'common', 1), getRandomData('system', 'string', 'common', 2) ]; // 功能点数据
-      const isGroupFunction = true;
-      if (isGroupFunction) {
-        group = getRandomGroup('system', 1280);
-      }
-
+      const data = [ getRandomData('boolean', 'property', 'common') ]; // 功能点数据
+      const groupId = getRandomGroup('property');
       const jsonData = {
-        version: '1.0.0',
-        method: 'write',
-        ...group ? {
-          group,
-        } : {},
+        version,
+        method,
+        groupId,
         data,
       };
-
-      const packagedData = app.thing.tlv.packager.package(jsonData);
+      const packagedData = app.thing.tlv.packager.package(jsonData); // 打包生产tlv buffer
       assert(Buffer.isBuffer(packagedData));
-      const parsedData = app.thing.tlv.parser.parse(packagedData);
-      assert(typeof parsedData === 'object');
+      const parsedData = app.thing.tlv.parser.parse(packagedData); // 逆解析验证tlv buffer
       assert(parsedData.version === version, '版本号错误');
       assert(parsedData.data.method === method, 'method错误');
       assert(!!parsedData.time, '需包含时间参数time');
       assert.ok(typeof parsedData.data.params === 'object', 'params需为对象');
-      assert.ok(typeof parsedData.data.params[data[0].resourceId] === 'object', '未找到功能点信息');
-      assert.ok(parsedData.data.params[data[0].resourceId].value === data[0].value, '功能点值错误');
-      assert.ok(parsedData.data.params[data[0].resourceId].type === data[0].valueType, '功能点类型错误');
-      assert.ok(parsedData.data.params[data[0].resourceId].message_type === data[0].messageType, '消息类型错误');
+      assert.ok(typeof parsedData.data.params[groupId].value === 'object', '组合功能点解析失败');
+      assert.ok(parsedData.data.params[groupId].value[data[0].resourceId].value === data[0].value, '功能点值错误');
     });
   });
 });

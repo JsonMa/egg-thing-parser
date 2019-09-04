@@ -55,11 +55,11 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert(!!parsedValue.time, '需包含时间参数time');
       assert(parsedValue.data.method === 'notify', 'method需为"notify"');
       assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
-      assert.ok(typeof parsedValue.data.params[1] === 'object', 'property需包含index为1的对象');
-      assert(parsedValue.data.params[1].resource === 'common', 'resource需为"common"');
-      assert(parsedValue.data.params[1].type === 'boolean', 'type需为"boolean"');
-      assert(parsedValue.data.params[1].message_type === 'property', 'type需为"property"');
-      assert.ok(parsedValue.data.params[1].value === MOCK_BOOLEAN, 'value需为true');
+      assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为1的对象');
+      assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
+      assert(parsedValue.data.params[MOCK_FUNCTION].type === 'boolean', 'type需为"boolean"');
+      assert(parsedValue.data.params[MOCK_FUNCTION].message === 'property', 'type需为"property"');
+      assert.ok(parsedValue.data.params[MOCK_FUNCTION].value === MOCK_BOOLEAN, 'value需为true');
     });
 
     it('enum tlv binary should be processed successfully', () => {
@@ -86,11 +86,11 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert(!!parsedValue.time, '需包含时间参数time');
       assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
       assert(parsedValue.data.method === 'notify', 'method需为"notify"');
-      assert.ok(typeof parsedValue.data.params[3] === 'object', 'property需包含index为1的对象');
-      assert(parsedValue.data.params[3].resource === 'common', 'resource需为"common"');
-      assert(parsedValue.data.params[3].type === 'enum', 'type需为"boolean"');
-      assert(parsedValue.data.params[3].message_type === 'property', 'type需为"property"');
-      assert.ok(parsedValue.data.params[3].value === MOCK_ENUM, 'value需为true');
+      assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为1的对象');
+      assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
+      assert(parsedValue.data.params[MOCK_FUNCTION].type === 'enum', 'type需为"boolean"');
+      assert(parsedValue.data.params[MOCK_FUNCTION].message === 'property', 'type需为"property"');
+      assert.ok(parsedValue.data.params[MOCK_FUNCTION].value === MOCK_ENUM, 'value需为true');
     });
 
     it('integer tlv binary should be processed successfully', () => {
@@ -117,11 +117,11 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert(!!parsedValue.time, '需包含时间参数time');
       assert(parsedValue.data.method === 'notify', 'method需为"notify"');
       assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
-      assert.ok(typeof parsedValue.data.params[15] === 'object', 'property需包含index为1的对象');
-      assert(parsedValue.data.params[15].resource === 'common', 'resource需为"common"');
-      assert(parsedValue.data.params[15].type === 'integer', 'type需为"boolean"');
-      assert(parsedValue.data.params[15].message_type === 'property', 'type需为"property"');
-      assert.ok(parsedValue.data.params[15].value === MOCK_INTEGER, 'value需为true');
+      assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为1的对象');
+      assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
+      assert(parsedValue.data.params[MOCK_FUNCTION].type === 'integer', 'type需为"boolean"');
+      assert(parsedValue.data.params[MOCK_FUNCTION].message === 'property', 'type需为"property"');
+      assert.ok(parsedValue.data.params[MOCK_FUNCTION].value === MOCK_INTEGER, 'value需为true');
     });
 
     it('float tlv binary should be processed successfully', () => {
@@ -148,11 +148,11 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert(!!parsedValue.time, '需包含时间参数time');
       assert(parsedValue.data.method === 'notify', 'method需为"notify"');
       assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
-      assert.ok(typeof parsedValue.data.params[31] === 'object', 'property需包含index为1的对象');
-      assert(parsedValue.data.params[31].resource === 'common', 'resource需为"common"');
-      assert(parsedValue.data.params[31].type === 'float', 'type需为"float"');
-      assert(parsedValue.data.params[31].message_type === 'property', 'type需为"property"');
-      assert.ok(parseInt(parsedValue.data.params[31].value) === parseInt(MOCK_FLOAT), 'value需为true');
+      assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为1的对象');
+      assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
+      assert(parsedValue.data.params[MOCK_FUNCTION].type === 'float', 'type需为"float"');
+      assert(parsedValue.data.params[MOCK_FUNCTION].message === 'property', 'type需为"property"');
+      assert.ok(parseInt(parsedValue.data.params[MOCK_FUNCTION].value) === parseInt(MOCK_FLOAT), 'value需为true');
     });
 
     it('exception tlv binary should be processed successfully', () => {
@@ -179,11 +179,11 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert(!!parsedValue.time, '需包含时间参数time');
       assert(parsedValue.data.method === 'notify', 'method需为"notify"');
       assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
-      assert.ok(typeof parsedValue.data.params[63] === 'object', 'property需包含index为63的对象');
-      assert(parsedValue.data.params[63].resource === 'common', 'resource需为"common"');
-      assert(parsedValue.data.params[63].type === 'exception', 'type需为"float"');
-      assert(parsedValue.data.params[63].message_type === 'property', 'type需为"property"');
-      assert.ok(parseInt(parsedValue.data.params[63].value, 2) === MOCK_EXCEPTION, 'value需为true');
+      assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为63的对象');
+      assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
+      assert(parsedValue.data.params[MOCK_FUNCTION].type === 'exception', 'type需为"float"');
+      assert(parsedValue.data.params[MOCK_FUNCTION].message === 'property', 'type需为"property"');
+      assert.ok(parseInt(parsedValue.data.params[MOCK_FUNCTION].value, 2) === MOCK_EXCEPTION, 'value需为true');
     });
 
     describe('thing/tlv/parser/buffer', () => {
@@ -219,10 +219,10 @@ describe('test/thing/tlv/parser.test.js', () => {
         assert(parsedValue.data.method === 'notify', 'method需为"notify"');
         assert(!!parsedValue.time, '需包含时间参数time');
         assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
-        assert.ok(typeof parsedValue.data.params[127] === 'object', 'property需包含index为63的对象');
-        assert(parsedValue.data.params[127].resource === 'common', 'resource需为"common"');
-        assert(parsedValue.data.params[127].type === 'buffer', 'type需为"buffer"');
-        assert.ok(parsedValue.data.params[127].value === MOCK_TLV_BUFFER_VALUE.toString('hex'), 'value需为true');
+        assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为63的对象');
+        assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
+        assert(parsedValue.data.params[MOCK_FUNCTION].type === 'buffer', 'type需为"buffer"');
+        assert.ok(parsedValue.data.params[MOCK_FUNCTION].value === MOCK_TLV_BUFFER_VALUE.toString('hex'), 'value需为true');
       });
 
       it('buffer [combine] tlv binary should be processed successfully', () => {
@@ -268,10 +268,10 @@ describe('test/thing/tlv/parser.test.js', () => {
         assert(parsedValue.data.method === 'notify', 'method需为"notify"');
         assert(!!parsedValue.time, '需包含时间参数time');
         assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
-        assert.ok(typeof parsedValue.data.params[1791] === 'object', 'property需包含index为63的对象');
-        assert(parsedValue.data.params[1791].resource === 'combine', 'resource需为"common"');
-        assert(parsedValue.data.params[1791].type === 'buffer', 'type需为"buffer"');
-        assert.ok(typeof parsedValue.data.params[1791].value === 'object', 'value需为object');
+        assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为63的对象');
+        assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'combine', 'resource需为"common"');
+        assert(parsedValue.data.params[MOCK_FUNCTION].type === 'buffer', 'type需为"buffer"');
+        assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION].value === 'object', 'value需为object');
       });
     });
 
@@ -305,10 +305,10 @@ describe('test/thing/tlv/parser.test.js', () => {
         assert(!!parsedValue.time, '需包含时间参数time');
         assert(parsedValue.data.method === 'notify', 'method需为"notify"');
         assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
-        assert.ok(typeof parsedValue.data.params[255] === 'object', 'property需包含index为63的对象');
-        assert(parsedValue.data.params[255].resource === 'common', 'resource需为"common"');
-        assert(parsedValue.data.params[255].type === 'string', 'type需为"string"');
-        assert.ok(parsedValue.data.params[255].value === MOCK_STRING, 'value需为true');
+        assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为63的对象');
+        assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
+        assert(parsedValue.data.params[MOCK_FUNCTION].type === 'string', 'type需为"string"');
+        assert.ok(parsedValue.data.params[MOCK_FUNCTION].value === MOCK_STRING, 'value需为true');
       });
 
       it('string [json] tlv binary should be processed successfully', () => {
@@ -344,10 +344,10 @@ describe('test/thing/tlv/parser.test.js', () => {
         assert(parsedValue.data.method === 'notify', 'method需为"notify"');
         assert(!!parsedValue.time, '需包含时间参数time');
         assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
-        assert.ok(typeof parsedValue.data.params[2047] === 'object', 'property需包含index为63的对象');
-        assert(parsedValue.data.params[2047].resource === 'static', 'resource需为"common"');
-        assert(parsedValue.data.params[2047].type === 'string', 'type需为"string"');
-        assert.deepStrictEqual(JSON.parse(parsedValue.data.params[2047].value), MOCK_JSON, 'value需为true');
+        assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为63的对象');
+        assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'static', 'resource需为"common"');
+        assert(parsedValue.data.params[MOCK_FUNCTION].type === 'string', 'type需为"string"');
+        assert.deepStrictEqual(JSON.parse(parsedValue.data.params[MOCK_FUNCTION].value), MOCK_JSON, 'value需为true');
       });
     });
   });

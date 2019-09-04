@@ -12,29 +12,14 @@ module.exports = {
       type: 'string',
       enum: [ 'read', 'write', 'notify', 'reset', 'recovery' ],
     }, // 操作码
-    group: {
-      type: 'object',
-      properties: {
-        messageType: {
-          type: 'string',
-          enum: [ 'system', 'device', 'property', 'event' ],
-        }, // 消息类型
-        resourceId: {
-          type: 'integer',
-        }, // 资源值
-      },
-      required: [ 'messageType', 'resourceId' ],
-      additionalProperties: false,
+    groupId: {
+      type: 'integer',
     }, // 组合功能点数据
     data: {
       type: 'array',
       items: {
         type: 'object',
         properties: {
-          messageType: {
-            type: 'string',
-            enum: [ 'system', 'device', 'property', 'event' ],
-          }, // 消息类型
           resourceId: {
             type: 'integer',
           }, // 资源值
@@ -46,7 +31,7 @@ module.exports = {
             type: [ 'string', 'boolean', 'number' ],
           },
         },
-        required: [ 'messageType', 'resourceId', 'valueType', 'value' ],
+        required: [ 'resourceId', 'valueType', 'value' ],
         additionalProperties: false,
       },
     }, // 普通功能点数据
