@@ -111,7 +111,7 @@ function getRandomValue(type) {
       break;
     case 'string':
       value = chance.string({
-        length: 200,
+        length: 255,
       });
       break;
     default:
@@ -175,7 +175,7 @@ describe('test/thing/tlv/packager.test.js', () => {
     it('group function data should be packaged successfully', () => {
       const version = getRandomVersion(); // 版本号
       const method = getRandomMethod(); // 操作码
-      const data = [ getRandomData('string', 'property', 'common'), getRandomData('integer', 'property', 'common'), getRandomData('enum', 'property', 'common'), getRandomData('float', 'property', 'common'), getRandomData('boolean', 'property', 'common') ]; // 功能点数据
+      const data = [ getRandomData('string', 'property', 'common') ]; // 功能点数据
       const groupId = getRandomGroup('property');
       const jsonData = {
         version,
