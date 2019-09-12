@@ -140,9 +140,9 @@ function generateFunction(valueType, messageType, resourceId) {
   return parseInt(`${valueTypeBits}${messageTypeBits}${resourceIdBits}`, 2);
 }
 
-function getRandomData(valueType, messageType, resourceType) {
+function getRandomData(valueType, messageType, resourceType, resourceId) {
   if (!resourceType) resourceType = getRandomResourceType();
-  const resourceId = getRandomResource(resourceType); // 生成资源ID
+  if (!resourceId) resourceId = getRandomResource(resourceType); // 生成资源ID
   if (!messageType) messageType = getRandomMessageType(); // 生成消息类型
   if (!valueType) valueType = getRandomDataType(); // 生成数据类型
   const value = getRandomValue(valueType); // 生成数据值
