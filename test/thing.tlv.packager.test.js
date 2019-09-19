@@ -175,7 +175,7 @@ describe('test/thing/tlv/packager.test.js', () => {
     it('group function data should be packaged successfully', () => {
       const version = getRandomVersion(); // 版本号
       const method = getRandomMethod(); // 操作码
-      const data = [ getRandomData('string', 'property', 'common') ]; // 功能点数据
+      const data = [ getRandomData('buffer', 'property', 'common') ]; // 功能点数据
       const groupId = getRandomGroup('property');
       const jsonData = {
         version,
