@@ -31,6 +31,13 @@ function getRandomVersion() {
   return `${randomVersion}.0.0`;
 }
 
+function getRandomMsgId(hasMsgId) {
+  return hasMsgId ? chance.integer({
+    min: 1,
+    max: 0xffffffff,
+  }) : null;
+}
+
 function getRandomMessageType() {
   const index = chance.integer({
     min: 0,
@@ -173,12 +180,17 @@ describe('test/thing/tlv/packager.test.js', () => {
 
   describe('thing/tlv/packager', () => {
     it('group function data should be packaged successfully', () => {
+      const hasMsgId = chance.bool();
       const version = getRandomVersion(); // 版本号
+      const msgId = getRandomMsgId(hasMsgId); // 消息id
       const method = getRandomMethod(); // 操作码
       const data = [ getRandomData('buffer', 'property', 'common') ]; // 功能点数据
       const groupId = getRandomGroup('property');
       const jsonData = {
         version,
+        ...msgId ? {
+          msgId,
+        } : null,
         method,
         groupId,
         data,
