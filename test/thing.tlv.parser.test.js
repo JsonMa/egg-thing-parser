@@ -67,6 +67,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert(parsedValue.data.params[MOCK_FUNCTION].type === 'boolean', 'type需为"boolean"');
       assert(parsedValue.data.params[MOCK_FUNCTION].message === 'property', 'type需为"property"');
       assert.ok(parsedValue.data.params[MOCK_FUNCTION].value === MOCK_BOOLEAN, 'value需为true');
+
     });
 
     it('enum tlv binary should be processed successfully', () => {
