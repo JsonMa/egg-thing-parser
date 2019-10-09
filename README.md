@@ -62,6 +62,7 @@ see [config/config.default.js](config/config.default.js) for more detail.
   version: "1.0.0",
   time: "xxxxxx", // 时间戳
   data: {
+    msgId：1, // 4字节无符号整数
     method: "notify", // 枚举值 - ['read', 'write', 'notify', 'reset', 'recovery', 'resp']
     groupId: 3, // 组合功能点Id
     params: {
