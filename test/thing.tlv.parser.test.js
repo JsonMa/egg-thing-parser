@@ -59,8 +59,9 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.ok(!!parsedValue, '布尔值物模型实例处理失败');
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
       assert(!!parsedValue.time, '需包含时间参数time');
-      HAS_MSGID && assert(parsedValue.data.msgId === 1, '消息id错误');
+      HAS_MSGID && assert(parsedValue.data.id === 1, '消息id错误');
       assert(parsedValue.data.method === 'notify', 'method需为"notify"');
+      assert(parsedValue.data.code === 3, 'code需为3');
       assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
       assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为1的对象');
       assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
@@ -100,7 +101,8 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert(!!parsedValue.time, '需包含时间参数time');
       assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
       assert(parsedValue.data.method === 'notify', 'method需为"notify"');
-      HAS_MSGID && assert(parsedValue.data.msgId === 2, '消息id错误');
+      assert(parsedValue.data.code === 3, 'code需为3');
+      HAS_MSGID && assert(parsedValue.data.id === 2, '消息id错误');
       assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为1的对象');
       assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
       assert(parsedValue.data.params[MOCK_FUNCTION].type === 'enum', 'type需为"boolean"');
@@ -137,7 +139,8 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
       assert(!!parsedValue.time, '需包含时间参数time');
       assert(parsedValue.data.method === 'notify', 'method需为"notify"');
-      HAS_MSGID && assert(parsedValue.data.msgId === 0x11111111, '消息id错误');
+      assert(parsedValue.data.code === 3, 'code需为3');
+      HAS_MSGID && assert(parsedValue.data.id === 0x11111111, '消息id错误');
       assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
       assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为1的对象');
       assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
@@ -175,7 +178,8 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
       assert(!!parsedValue.time, '需包含时间参数time');
       assert(parsedValue.data.method === 'notify', 'method需为"notify"');
-      HAS_MSGID && assert(parsedValue.data.msgId === 0xffffffff, '消息id错误');
+      assert(parsedValue.data.code === 3, 'code需为3');
+      HAS_MSGID && assert(parsedValue.data.id === 0xffffffff, '消息id错误');
       assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
       assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为1的对象');
       assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
@@ -213,7 +217,8 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
       assert(!!parsedValue.time, '需包含时间参数time');
       assert(parsedValue.data.method === 'notify', 'method需为"notify"');
-      HAS_MSGID && assert(parsedValue.data.msgId === 0xfffffffe, '消息id错误');
+      assert(parsedValue.data.code === 3, 'code需为3');
+      HAS_MSGID && assert(parsedValue.data.id === 0xfffffffe, '消息id错误');
       assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
       assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为63的对象');
       assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
@@ -259,7 +264,8 @@ describe('test/thing/tlv/parser.test.js', () => {
         assert.ok(!!parsedValue, '整数值物模型实例处理失败');
         assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
         assert(parsedValue.data.method === 'notify', 'method需为"notify"');
-        HAS_MSGID && assert(parsedValue.data.msgId === 0xfffffffa, '消息id错误');
+        assert(parsedValue.data.code === 3, 'code需为3');
+        HAS_MSGID && assert(parsedValue.data.id === 0xfffffffa, '消息id错误');
         assert(!!parsedValue.time, '需包含时间参数time');
         assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
         assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为63的对象');
@@ -315,7 +321,8 @@ describe('test/thing/tlv/parser.test.js', () => {
         assert.ok(!!parsedValue, '整数值物模型实例处理失败');
         assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
         assert(parsedValue.data.method === 'notify', 'method需为"notify"');
-        HAS_MSGID && assert(parsedValue.data.msgId === 0xfffffffb, '消息id错误');
+        assert(parsedValue.data.code === 3, 'code需为3');
+        HAS_MSGID && assert(parsedValue.data.id === 0xfffffffb, '消息id错误');
         assert(!!parsedValue.time, '需包含时间参数time');
         assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
         assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为63的对象');
@@ -360,7 +367,8 @@ describe('test/thing/tlv/parser.test.js', () => {
         assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
         assert(!!parsedValue.time, '需包含时间参数time');
         assert(parsedValue.data.method === 'notify', 'method需为"notify"');
-        HAS_MSGID && assert(parsedValue.data.msgId === 0xfffffffc, '消息id错误');
+        assert(parsedValue.data.code === 3, 'code需为3');
+        HAS_MSGID && assert(parsedValue.data.id === 0xfffffffc, '消息id错误');
         assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
         assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为63的对象');
         assert(parsedValue.data.params[MOCK_FUNCTION].resource === 'common', 'resource需为"common"');
@@ -405,7 +413,8 @@ describe('test/thing/tlv/parser.test.js', () => {
         assert.ok(!!parsedValue, '整数值物模型实例处理失败');
         assert(parsedValue.version === '1.0.0', '版本号需为"1.0.0"');
         assert(parsedValue.data.method === 'notify', 'method需为"notify"');
-        HAS_MSGID && assert(parsedValue.data.msgId === 0xfffffffd, '消息id错误');
+        assert(parsedValue.data.code === 3, 'code需为3');
+        HAS_MSGID && assert(parsedValue.data.id === 0xfffffffd, '消息id错误');
         assert(!!parsedValue.time, '需包含时间参数time');
         assert.ok(typeof parsedValue.data.params === 'object', 'params需为对象');
         assert.ok(typeof parsedValue.data.params[MOCK_FUNCTION] === 'object', 'property需包含index为63的对象');
