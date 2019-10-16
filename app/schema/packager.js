@@ -8,7 +8,7 @@ module.exports = {
       type: 'string',
       pattern: '^[0-9]{1,2}(.0){2}',
     }, // 版本号：1.0.0
-    msgId: {
+    id: {
       type: 'integer',
       minimum: 1, // 0x00000001
       maximum: 4294967295, // 0xffffffff
