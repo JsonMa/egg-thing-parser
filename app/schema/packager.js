@@ -40,7 +40,7 @@ module.exports = {
             type: [ 'string', 'boolean', 'number' ],
           },
         },
-        required: [ 'resourceId', 'valueType', 'value' ],
+        required: [ 'resourceId' ],
         additionalProperties: false,
       },
     }, // 普通功能点数据
