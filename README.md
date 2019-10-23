@@ -36,16 +36,15 @@ $ npm i egg-thing-parser --save
 // {app_root}/config/plugin.js
 exports.thingParser = {
   enable: true,
-  package: 'egg-thing-parser',
-};
+  package: 'egg-thing-parser'
+}
 ```
 
 ## Configuration
 
 ```js
 // {app_root}/config/config.default.js
-exports.thingParser = {
-};
+exports.thingParser = {}
 ```
 
 see [config/config.default.js](config/config.default.js) for more detail.
@@ -113,7 +112,7 @@ see [config/config.default.js](config/config.default.js) for more detail.
 
 ## Questions & Suggestions
 
-Please open an issue [here](https://github.com/eggjs/egg/issues).
+Please open an issue [here](https://github.com/jsonma/egg-thing-parser/issues).
 
 ## License
 
