@@ -101,7 +101,7 @@ see [config/config.default.js](config/config.default.js) for more detail.
   method: 'read', // 操作码 [ 'read', 'write', 'notify', 'reset', 'recovery' ]
   groupId: 123, // 组合功能点值
   data: [{
-      resourceId: 2222, // 普通功能点值
+      resourceId: 2222, // 功能点id(通过函数生成)
       valueType: 'string', // 数据类型 [ 'boolean', 'enum', 'integer', 'float', 'buffer', 'exception', 'string' ]
       value: 'asdf'
     } // 普通功能点数据
