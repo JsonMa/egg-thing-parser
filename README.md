@@ -37,14 +37,14 @@ $ npm i egg-thing-parser --save
 exports.thingParser = {
   enable: true,
   package: 'egg-thing-parser'
-}
+};
 ```
 
 ## Configuration
 
 ```js
 // {app_root}/config/config.default.js
-exports.thingParser = {}
+exports.thingParser = {};
 ```
 
 see [config/config.default.js](config/config.default.js) for more detail.
@@ -62,8 +62,11 @@ see [config/config.default.js](config/config.default.js) for more detail.
   time: "xxxxxx", // 时间戳
   data: {
     id：1, // 4字节无符号整数
-    method: "notify", // 枚举值 - ['read', 'write', 'notify', 'reset', 'recovery', 'resp']
-    code: 3;
+    operation: 'response', // 操作类型 'request','response'
+    type: 'device', // 设备类型 'device','subDevice'
+    target: 'resource', // 操作对象 'resource','system'
+    method：'read', // 操作名 'read', 'write', 'notify', 'reset', 'recovery', 'register', 'deregister','enable','disable','label','upgrade','online','offline'
+    code: 3; // 响应码
     groupId: 3, // 组合功能点Id
     params: {
       3: {
@@ -98,15 +101,23 @@ see [config/config.default.js](config/config.default.js) for more detail.
 // 输入：
 {
   version: '1.0.0', // 版本号：1.0.0
-  method: 'read', // 操作码 [ 'read', 'write', 'notify', 'reset', 'recovery' ]
-  groupId: 123, // 组合功能点值
-  data: [{
-      resourceId: 2222, // 功能点id(通过函数生成)
+  id: xxxx, // 消息id，4字节无符号整数
+  operations: {
+    code: xxxx, // 操作码，1字节无符号整数（当code存在时，code的值即为操作码值，否则需要通过method、target、type和operation共同计算出操作码）
+    operation: 'response', // 操作类型 'request','response'
+    type: 'device', // 设备类型 'device','subDevice'
+    target: 'resource', // 操作对象 'resource','system'
+    method：'read', // 操作名 'read', 'write', 'notify', 'reset', 'recovery', 'register', 'deregister','enable','disable','label','upgrade','online','offline'
+  }, // 操作码信息
+  code: xxxx, // 响应码，1字节无符号整数(operation为response时必须传)
+  data: {
+     groupId: xxxx, // 组合功能点id，2字节无符号整数（当groupId存在时，data为其包含的子功能点数据）
+     params: [{
+      functionId: xxxx, // 功能点id，2字节无符号整数
       valueType: 'string', // 数据类型 [ 'boolean', 'enum', 'integer', 'float', 'buffer', 'exception', 'string' ]
       value: 'asdf'
-    } // 普通功能点数据
-  ]
-  // required: [ 'version', 'method', 'data' ],
+    }], // 当method为read且operation为request时，只需传functionId即可
+  }
 }
 ```
 
