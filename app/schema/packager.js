@@ -90,7 +90,7 @@ module.exports = {
                 ],
               },
               value: {
-                type: [ 'string', 'boolean', 'number' ],
+                type: [ 'string', 'boolean', 'number', 'object' ],
               },
             },
             required: [ 'functionId' ],

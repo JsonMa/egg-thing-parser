@@ -177,7 +177,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepEqual('string-test', params[functionId].value, '组合功能点解析失败');
     });
 
-    it('assembel register response buffer', () => {
+    it('assembel non-tls register response buffer', () => {
       const version = getRandomVersion(); // 版本号
       const id = getRandomMsgId(true); // 消息id
       const operations = {
@@ -220,7 +220,6 @@ describe('test/thing/tlv/packager.test.js', () => {
 
         },
       }); // tlv数据封装
-
       const {
         version: parsedVersion,
         id: parsedId,
@@ -242,6 +241,80 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepEqual('test-device-id', params[functionDeviceId].value, '设备sn功能点值解析失败');
       assert.deepEqual('test-token', params[functionToken].value, 'token功能点值解析失败');
       assert.deepEqual('test-broker-address', params[functionBrokerAddress].value, 'broker地址功能点值解析失败');
+    });
+
+    it('assembel tls register response buffer', () => {
+      const version = getRandomVersion(); // 版本号
+      const id = getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'response',
+        type: 'device',
+        target: 'system',
+        method: 'register',
+      };
+      const functionProductId = generateFunctionId('string', 'custom', 1);
+      const functionDeviceId = generateFunctionId('string', 'custom', 2);
+      const functionToken = generateFunctionId('string', 'custom', 3);
+      const functionBrokerAddress = generateFunctionId('string', 'custom', 4);
+      const functionCRT = generateFunctionId('buffer', 'custom', 5);
+      const packagedBufferPadyload = app.thing.tlv.packager.package({
+        version,
+        ...id ? {
+          id,
+        } : null,
+        operations,
+        code: 0,
+        data: {
+          params: [{
+            functionId: functionProductId,
+            valueType: 'string',
+            value: 'test-pid',
+          }, {
+            functionId: functionDeviceId,
+            valueType: 'string',
+            value: 'test-device-id',
+          }, {
+            functionId: functionToken,
+            valueType: 'string',
+            value: 'test-token',
+          },
+          {
+            functionId: functionBrokerAddress,
+            valueType: 'string',
+            value: 'test-broker-address',
+          },
+          {
+            functionId: functionCRT,
+            valueType: 'buffer',
+            value: Buffer.from('test-crt'),
+          },
+          ],
+        },
+      }); // tlv数据封装
+      const {
+        version: parsedVersion,
+        id: parsedId,
+        operations: parsedOperations,
+        time,
+        data: {
+          params,
+        },
+      } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
+      const functions = Object.keys(params);
+      assert(parsedVersion === version, '版本号错误');
+      assert(id === parsedId, '消息id错误');
+      assert(time && typeof time === 'number', '需包含时间戳');
+      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+      assert(functions.includes(functionProductId.toString()), '产品id功能点解析失败');
+      assert(functions.includes(functionDeviceId.toString()), '设备sn功能点解析失败');
+      assert(functions.includes(functionToken.toString()), 'token功能点解析失败');
+      assert(functions.includes(functionBrokerAddress.toString()), 'broker地址功能点解析失败');
+      assert(functions.includes(functionCRT.toString()), '证书功能点解析失败');
+      assert.deepEqual('test-pid', params[functionProductId].value, '产品id功能点值解析失败');
+      assert.deepEqual('test-device-id', params[functionDeviceId].value, '设备sn功能点值解析失败');
+      assert.deepEqual('test-token', params[functionToken].value, 'token功能点值解析失败');
+      assert.deepEqual('test-broker-address', params[functionBrokerAddress].value, 'broker地址功能点值解析失败');
+      assert.deepEqual(Buffer.from('test-crt').toString('hex'), params[functionCRT].value, '证书功能点值解析失败');
     });
   });
 });
