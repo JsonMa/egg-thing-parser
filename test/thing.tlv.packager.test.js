@@ -5,24 +5,6 @@ const assert = require('assert');
 const chance = new require('chance')();
 const _ = require('lodash');
 
-function getRandomDataType() {
-  const index = chance.integer({
-    min: 0,
-    max: 5,
-  });
-  const dataTypeArray = [ 'boolean', 'enum', 'integer', 'float', 'buffer', 'string' ];
-  return dataTypeArray[index];
-}
-
-// function getRandomResourceMethod() {
-//   const index = chance.integer({
-//     min: 0,
-//     max: 3,
-//   });
-//   const methodArray = [ 'read', 'write', 'notify' ];
-//   return methodArray[index];
-// }
-
 function getRandomVersion() {
   const randomVersion = chance.integer({
     min: 1,
@@ -36,15 +18,6 @@ function getRandomMsgId(hasMsgId) {
     min: 1,
     max: 0xffffffff,
   }) : null;
-}
-
-function getRandomMessageType() {
-  const index = chance.integer({
-    min: 0,
-    max: 1,
-  });
-  const messageTypeArray = [ 'property', 'event' ];
-  return messageTypeArray[index];
 }
 
 function getRandomResourceId(type) {
@@ -71,62 +44,6 @@ function getRandomResourceId(type) {
   return resourceId;
 }
 
-function getRandomResourceType() {
-  const index = chance.integer({
-    min: 0,
-    max: 2,
-  });
-  const resourceTypeArray = [ 'common', 'static', 'combine' ]; // 普通、组合、固定
-  return resourceTypeArray[index];
-}
-
-// function getRandomGroup(messageType, groupId) {
-//   if (!messageType) messageType = getRandomMessageType();
-//   if (!groupId) groupId = generateFunction('buffer', messageType, getRandomResourceId('combine'));
-//   return groupId;
-// }
-
-function getRandomValue(type) {
-  let value = null;
-  switch (type) {
-    case 'boolean':
-      value = chance.bool();
-      break;
-    case 'enum':
-      value = chance.integer({
-        min: 0,
-        max: 255,
-      });
-      break;
-    case 'integer':
-      value = chance.integer({
-        min: -256,
-        max: -255,
-      });
-      break;
-    case 'float':
-      value = chance.floating({
-        min: -256,
-        max: 255,
-      });
-      break;
-    case 'buffer':
-      value = chance.string({
-        pool: '0123456789abcdef',
-        length: 10,
-      });
-      break;
-    case 'string':
-      value = chance.string({
-        length: 255,
-      });
-      break;
-    default:
-      break;
-  }
-  return value;
-}
-
 /**
  * 生成功能点Id
  *
@@ -145,28 +62,6 @@ function generateFunctionId(valueType, messageType, resourceId) {
   const messageTypeBits = _.padStart(messageType.toString(2), 2, '0'); // exp: '01'
   const resourceIdBits = _.padStart(resourceId.toString(2), 11, '0'); // exp: '00000000011'
   return parseInt(`${valueTypeBits}${messageTypeBits}${resourceIdBits}`, 2);
-}
-
-/**
- * 生成功能点值
- *
- * @param {String} valueType     - 功能点值类型
- * @param {String} messageType   - 消息类型
- * @param {String} resourceType  - 资源类型
- * @param {Number} resourceId    - 资源id
- * @return {Object} - 数据
- */
-function getRandomData(valueType, messageType, resourceType, resourceId) {
-  if (!resourceType) resourceType = getRandomResourceType();
-  if (!resourceId) resourceId = getRandomResourceId(resourceType); // 生成资源ID
-  if (!messageType) messageType = getRandomMessageType(); // 生成消息类型
-  if (!valueType) valueType = getRandomDataType(); // 生成数据类型
-  const value = getRandomValue(valueType); // 生成数据值
-  return {
-    functionId: generateFunctionId(valueType, messageType, resourceId),
-    valueType,
-    value,
-  };
 }
 
 describe('test/thing/tlv/packager.test.js', () => {
