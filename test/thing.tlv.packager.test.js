@@ -5,6 +5,11 @@ const assert = require('assert');
 const chance = new require('chance')();
 const _ = require('lodash');
 
+/**
+ * 生成随机版本号
+ *
+ * @return {String} - 版本号
+ */
 function getRandomVersion() {
   const randomVersion = chance.integer({
     min: 1,
@@ -13,6 +18,12 @@ function getRandomVersion() {
   return `${randomVersion}.0.0`;
 }
 
+/**
+ * 生成随机消息id
+ *
+ * @param {Boolean} hasMsgId - 是否需要生成消息id
+ * @return 消息id
+ */
 function getRandomMsgId(hasMsgId) {
   return hasMsgId ? chance.integer({
     min: 1,
@@ -20,6 +31,12 @@ function getRandomMsgId(hasMsgId) {
   }) : null;
 }
 
+/**
+ * 生成resourceId
+ *
+ * @param {String} type  - 资源类型
+ * @return {Number} - resourceId
+ */
 function getRandomResourceId(type) {
   let min = null;
   let max = null;
@@ -54,9 +71,9 @@ function getRandomResourceId(type) {
  * @memberof Packager
  */
 function generateFunctionId(valueType, messageType, resourceId) {
-  const dataTypeArray = [ 'boolean', 'enum', 'integer', 'float', 'buffer', 'exception', 'string' ];
+  const dataTypeArray = ['boolean', 'enum', 'integer', 'float', 'buffer', 'exception', 'string'];
   valueType = dataTypeArray.indexOf(valueType) + 1;
-  const messageTypeArray = [ 'reserve', 'custom', 'property', 'event' ];
+  const messageTypeArray = ['reserve', 'custom', 'property', 'event'];
   messageType = messageTypeArray.indexOf(messageType);
   const valueTypeBits = _.padStart(valueType.toString(2), 3, '0'); // exp: '011'
   const messageTypeBits = _.padStart(messageType.toString(2), 2, '0'); // exp: '01'
@@ -182,23 +199,23 @@ describe('test/thing/tlv/packager.test.js', () => {
         code: 0,
         data: {
           params: [{
-            functionId: functionProductId,
-            valueType: 'string',
-            value: 'test-pid',
-          }, {
-            functionId: functionDeviceId,
-            valueType: 'string',
-            value: 'test-device-id',
-          }, {
-            functionId: functionToken,
-            valueType: 'string',
-            value: 'test-token',
-          },
-          {
-            functionId: functionBrokerAddress,
-            valueType: 'string',
-            value: 'test-broker-address',
-          },
+              functionId: functionProductId,
+              valueType: 'string',
+              value: 'test-pid',
+            }, {
+              functionId: functionDeviceId,
+              valueType: 'string',
+              value: 'test-device-id',
+            }, {
+              functionId: functionToken,
+              valueType: 'string',
+              value: 'test-token',
+            },
+            {
+              functionId: functionBrokerAddress,
+              valueType: 'string',
+              value: 'test-broker-address',
+            },
           ],
 
         },
