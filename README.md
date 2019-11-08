@@ -59,14 +59,17 @@ see [config/config.default.js](config/config.default.js) for more detail.
 // 输出:
 {
   version: "1.0.0",
-  time: "xxxxxx", // 时间戳
-  data: {
-    id：1, // 4字节无符号整数
+  id：xxxx, // 消息id，4字节无符号整数
+  operations: {
+    code: xxxx, // 操作码，1字节无符号整数
     operation: 'response', // 操作类型 'request','response'
-    type: 'device', // 设备类型 'device','subDevice'
-    target: 'resource', // 操作对象 'resource','system'
+    type: 'device', // 设备类型 'device'-普通设备,'subDevice'-子设备
+    target: 'resource', // 操作对象 'resource'-资源,'system'-系统
     method：'read', // 操作名 'read', 'write', 'notify', 'reset', 'recovery', 'register', 'deregister','enable','disable','label','upgrade','online','offline'
-    code: 3; // 响应码
+  }, // 操作码信息
+  code: xxxx, // 响应码，1字节无符号整数
+  time: "xxxxxx", // 时间戳（插件注入，非设备上报）
+  data: {
     groupId: 3, // 组合功能点Id
     params: {
       3: {
@@ -74,19 +77,19 @@ see [config/config.default.js](config/config.default.js) for more detail.
           1： {
             value: "xxxx",
             type: "boolean", // 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
-            resource: "common", // 资源类型 - ['common', 'static', 'combine']
-            message: "property" // 消息类型 - ['property', 'device', 'event', 'system']
+            resource: "common", // 资源类型 - ['common'-普通, 'static'-固定, 'combine'-组合]
+            message: "property" // 功能点类型 - ['property'-属性, 'event'-事件, 'reserve'-保留字段, 'custom'-自定义]
           }
         },
-        type: "buffer", // 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
-        resource: "combine", // 资源类型 - ['common', 'static', 'combine']
-        message: "property" // 消息类型 - ['property', 'device', 'event', 'system']
+        type: "buffer",
+        resource: "combine",
+        message: "property",
       },
       2: {
         value: "xxxx",
-        type: "boolean", // 数据类型 - ['boolean', 'enum', 'integer', 'float', 'buffer', 'string', 'exception']
-        resource: "static", // 资源类型 - ['common', 'static', 'combine']
-        message: "property" // 消息类型 - ['property', 'device', 'event', 'system']
+        type: "boolean",
+        resource: "static",
+        message: "property",
       }
     }
   }

@@ -6,12 +6,12 @@ module.exports = {
   properties: {
     version: {
       type: 'string',
-      pattern: '^[0-9]{1,2}(.0){2}'
+      pattern: '^[0-9]{1,2}(.0){2}',
     }, // 版本号：1.0.0
     id: {
       type: 'integer',
       minimum: 1,
-      maximum: 0xffffffff
+      maximum: 0xffffffff,
     },
     operations: {
       type: 'object',
@@ -19,7 +19,7 @@ module.exports = {
         code: {
           type: 'integer',
           minimum: 0,
-          maximum: 255
+          maximum: 255,
         }, // 操作码
         method: {
           type: 'string',
@@ -36,28 +36,28 @@ module.exports = {
             'label',
             'upgrade',
             'online',
-            'offline'
-          ]
+            'offline',
+          ],
         },
         target: {
           type: 'string',
-          enum: ['resource', 'system']
+          enum: [ 'resource', 'system' ],
         },
         type: {
           type: 'string',
-          enum: ['device', 'subDevice']
+          enum: [ 'device', 'subDevice' ],
         },
         operation: {
           type: 'string',
-          enum: ['request', 'response']
+          enum: [ 'request', 'response' ],
         },
-        additionalProperties: false
-      }
+        additionalProperties: false,
+      },
     },
     code: {
       type: 'integer',
       minimum: 0,
-      maximum: 255
+      maximum: 255,
     }, // 响应码
     data: {
       type: 'object',
@@ -65,7 +65,7 @@ module.exports = {
         groupId: {
           type: 'integer',
           maximum: 65535, // 0xffff
-          minimum: 512 // 001 00 00000000000b
+          minimum: 512, // 001 00 00000000000b
         }, // 组合功能点id
         params: {
           type: 'array',
@@ -75,7 +75,7 @@ module.exports = {
               functionId: {
                 type: 'integer',
                 minimum: 512, // 001 00 00000000000b
-                maximum: 0xffff
+                maximum: 0xffff,
               }, // 普通功能点id
               valueType: {
                 type: 'string',
@@ -86,22 +86,22 @@ module.exports = {
                   'float',
                   'buffer',
                   'exception',
-                  'string'
-                ]
+                  'string',
+                ],
               },
               value: {
-                type: ['string', 'boolean', 'number']
-              }
+                type: [ 'string', 'boolean', 'number' ],
+              },
             },
-            required: ['functionId'],
-            additionalProperties: false
-          }
-        }
+            required: [ 'functionId' ],
+            additionalProperties: false,
+          },
+        },
       },
-      required: ['groupId', 'params'],
-      additionalProperties: false
-    }
+      required: [ 'params' ],
+      additionalProperties: false,
+    },
   },
-  required: ['version', 'method', 'data'],
-  additionalProperties: false
+  required: [ 'version', 'operations' ],
+  additionalProperties: false,
 };
