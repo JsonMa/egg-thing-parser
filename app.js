@@ -9,6 +9,6 @@ module.exports = app => {
         return new File(app);
       },
     });
-    app.loader.loadToApp(path.join(__dirname, './app/schema'), 'schema');
+    app.loader.loadToApp(path.join(__dirname, './app/schema'), 'thingSchema');
   });
 };
