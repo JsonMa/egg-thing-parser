@@ -1,6 +1,6 @@
 {
   "name": "egg-thing-parser",
-  "version": "1.2.25",
+  "version": "1.2.26",
   "description": "thing model parser",
   "eggPlugin": {
     "name": "thingParser"
