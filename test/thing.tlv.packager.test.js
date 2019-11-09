@@ -224,6 +224,40 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepEqual('string-test', params[functionId].value, '组合功能点解析失败');
     });
 
+    it('assembel write response buffer', () => {
+      const version = getRandomVersion(); // 版本号
+      const id = getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'response', // 操作类型
+        type: 'device', // 设备类型
+        target: 'resource', // 操作对象 'resource'
+        method: 'write', // 操作名
+      };
+      const packagedBufferPadyload = app.thing.tlv.packager.package({
+        version,
+        ...(id ? {
+          id,
+        } :
+          null),
+        operations,
+        code: 0,
+      }); // tlv数据封装
+      const {
+        version: parsedVersion,
+        id: parsedId,
+        operations: parsedOperations,
+        code,
+        time,
+      } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
+      assert(parsedVersion === version, '版本号错误');
+      assert(id === parsedId, '消息id错误');
+      assert(time && typeof time === 'number', '需包含时间戳');
+      assert.deepStrictEqual(code, 0, '响应码错误');
+      assert.deepStrictEqual(parsedOperations.code, 0x82, '操作码错误');
+      delete parsedOperations.code;
+      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+    });
+
     it('assembel non-tls register response buffer', () => {
       const version = getRandomVersion(); // 版本号
       const id = getRandomMsgId(true); // 消息id
