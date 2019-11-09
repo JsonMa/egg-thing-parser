@@ -25,10 +25,12 @@ function getRandomVersion() {
  * @return {Number} - 消息id
  */
 function getRandomMsgId(hasMsgId) {
-  return hasMsgId ? chance.integer({
-    min: 1,
-    max: 0xffffffff,
-  }) : null;
+  return hasMsgId
+    ? chance.integer({
+      min: 1,
+      max: 0xffffffff,
+    })
+    : null;
 }
 
 /**
@@ -112,14 +114,18 @@ describe('test/thing/tlv/packager.test.js', () => {
       const functionId = generateFunctionId('string', 'property', getRandomResourceId());
       const packagedBufferPadyload = app.thing.tlv.packager.package({
         version,
-        ...id ? {
-          id,
-        } : null,
+        ...(id
+          ? {
+            id,
+          }
+          : null),
         operations,
         data: {
-          params: [{
-            functionId,
-          }],
+          params: [
+            {
+              functionId,
+            },
+          ],
         },
       }); // tlv数据封装
       const {
@@ -148,16 +154,20 @@ describe('test/thing/tlv/packager.test.js', () => {
       const functionId = generateFunctionId('string', 'property', getRandomResourceId());
       const packagedBufferPadyload = app.thing.tlv.packager.package({
         version,
-        ...id ? {
-          id,
-        } : null,
+        ...(id
+          ? {
+            id,
+          }
+          : null),
         operations,
         data: {
-          params: [{
-            functionId,
-            valueType: 'string',
-            value: 'string-test',
-          }],
+          params: [
+            {
+              functionId,
+              valueType: 'string',
+              value: 'string-test',
+            },
+          ],
         },
       }); // tlv数据封装
       const {
@@ -165,9 +175,7 @@ describe('test/thing/tlv/packager.test.js', () => {
         id: parsedId,
         operations: parsedOperations,
         time,
-        data: {
-          params,
-        },
+        data: { params },
       } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
       assert(parsedVersion === version, '版本号错误');
       assert(id === parsedId, '消息id错误');
@@ -192,55 +200,67 @@ describe('test/thing/tlv/packager.test.js', () => {
       const functionBrokerAddress = generateFunctionId('string', 'custom', 4);
       const packagedBufferPadyload = app.thing.tlv.packager.package({
         version,
-        ...id ? {
-          id,
-        } : null,
+        ...(id
+          ? {
+            id,
+          }
+          : null),
         operations,
         code: 0,
         data: {
-          params: [{
-            functionId: functionProductId,
-            valueType: 'string',
-            value: 'test-pid',
-          }, {
-            functionId: functionDeviceId,
-            valueType: 'string',
-            value: 'test-device-id',
-          }, {
-            functionId: functionToken,
-            valueType: 'string',
-            value: 'test-token',
-          },
-          {
-            functionId: functionBrokerAddress,
-            valueType: 'string',
-            value: 'test-broker-address',
-          },
+          params: [
+            {
+              functionId: functionProductId,
+              valueType: 'string',
+              value: 'test-pid',
+            },
+            {
+              functionId: functionDeviceId,
+              valueType: 'string',
+              value: 'test-device-id',
+            },
+            {
+              functionId: functionToken,
+              valueType: 'string',
+              value: 'test-token',
+            },
+            {
+              functionId: functionBrokerAddress,
+              valueType: 'string',
+              value: 'test-broker-address',
+            },
           ],
-
         },
       }); // tlv数据封装
       const {
         version: parsedVersion,
         id: parsedId,
+        code,
         operations: parsedOperations,
         time,
-        data: {
-          params,
-        },
+        data: { params },
       } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
       assert(parsedVersion === version, '版本号错误');
       assert(id === parsedId, '消息id错误');
       assert(time && typeof time === 'number', '需包含时间戳');
+      assert.deepStrictEqual(code, 0, '响应码错误');
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
       assert.deepEqual(functionProductId, parseInt(Object.keys(params)[0]), '产品id功能点解析失败');
       assert.deepEqual(functionDeviceId, parseInt(Object.keys(params)[1]), '设备sn功能点解析失败');
       assert.deepEqual(functionToken, parseInt(Object.keys(params)[2]), 'token功能点解析失败');
-      assert.deepEqual(functionBrokerAddress, parseInt(Object.keys(params)[3]), 'broker地址功能点解析失败');
+      assert.deepEqual(
+        functionBrokerAddress,
+        parseInt(Object.keys(params)[3]),
+        'broker地址功能点解析失败'
+      );
       assert.deepEqual('test-pid', params[functionProductId].value, '产品id功能点值解析失败');
       assert.deepEqual('test-device-id', params[functionDeviceId].value, '设备sn功能点值解析失败');
       assert.deepEqual('test-token', params[functionToken].value, 'token功能点值解析失败');
-      assert.deepEqual('test-broker-address', params[functionBrokerAddress].value, 'broker地址功能点值解析失败');
+      assert.deepEqual(
+        'test-broker-address',
+        params[functionBrokerAddress].value,
+        'broker地址功能点值解析失败'
+      );
     });
 
     it('assembel tls register response buffer', () => {
@@ -259,35 +279,40 @@ describe('test/thing/tlv/packager.test.js', () => {
       const functionCRT = generateFunctionId('buffer', 'custom', 5);
       const packagedBufferPadyload = app.thing.tlv.packager.package({
         version,
-        ...id ? {
-          id,
-        } : null,
+        ...(id
+          ? {
+            id,
+          }
+          : null),
         operations,
         code: 0,
         data: {
-          params: [{
-            functionId: functionProductId,
-            valueType: 'string',
-            value: 'test-pid',
-          }, {
-            functionId: functionDeviceId,
-            valueType: 'string',
-            value: 'test-device-id',
-          }, {
-            functionId: functionToken,
-            valueType: 'string',
-            value: 'test-token',
-          },
-          {
-            functionId: functionBrokerAddress,
-            valueType: 'string',
-            value: 'test-broker-address',
-          },
-          {
-            functionId: functionCRT,
-            valueType: 'buffer',
-            value: Buffer.from('test-crt'),
-          },
+          params: [
+            {
+              functionId: functionProductId,
+              valueType: 'string',
+              value: 'test-pid',
+            },
+            {
+              functionId: functionDeviceId,
+              valueType: 'string',
+              value: 'test-device-id',
+            },
+            {
+              functionId: functionToken,
+              valueType: 'string',
+              value: 'test-token',
+            },
+            {
+              functionId: functionBrokerAddress,
+              valueType: 'string',
+              value: 'test-broker-address',
+            },
+            {
+              functionId: functionCRT,
+              valueType: 'buffer',
+              value: Buffer.from('test-crt'),
+            },
           ],
         },
       }); // tlv数据封装
@@ -296,14 +321,14 @@ describe('test/thing/tlv/packager.test.js', () => {
         id: parsedId,
         operations: parsedOperations,
         time,
-        data: {
-          params,
-        },
+        code,
+        data: { params },
       } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
       const functions = Object.keys(params);
       assert(parsedVersion === version, '版本号错误');
       assert(id === parsedId, '消息id错误');
       assert(time && typeof time === 'number', '需包含时间戳');
+      assert.deepStrictEqual(code, 0, '响应码错误');
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
       assert(functions.includes(functionProductId.toString()), '产品id功能点解析失败');
       assert(functions.includes(functionDeviceId.toString()), '设备sn功能点解析失败');
@@ -313,8 +338,16 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepEqual('test-pid', params[functionProductId].value, '产品id功能点值解析失败');
       assert.deepEqual('test-device-id', params[functionDeviceId].value, '设备sn功能点值解析失败');
       assert.deepEqual('test-token', params[functionToken].value, 'token功能点值解析失败');
-      assert.deepEqual('test-broker-address', params[functionBrokerAddress].value, 'broker地址功能点值解析失败');
-      assert.deepEqual(Buffer.from('test-crt').toString('hex'), params[functionCRT].value, '证书功能点值解析失败');
+      assert.deepEqual(
+        'test-broker-address',
+        params[functionBrokerAddress].value,
+        'broker地址功能点值解析失败'
+      );
+      assert.deepEqual(
+        Buffer.from('test-crt').toString('hex'),
+        params[functionCRT].value,
+        '证书功能点值解析失败'
+      );
     });
   });
 });
