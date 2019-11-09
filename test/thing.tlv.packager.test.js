@@ -145,10 +145,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       const version = getRandomVersion(); // 版本号
       const id = getRandomMsgId(true); // 消息id
       const operations = {
-        operation: 'response', // 操作类型
-        type: 'device', // 设备类型
-        target: 'resource', // 操作对象 'resource'
-        method: 'read', // 操作名
+        code: 129,
       };
       const functionId = generateFunctionId('boolean', 'property', 1);
       const packagedBufferPadyload = app.thing.tlv.packager.package({
@@ -179,9 +176,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert(id === parsedId, '消息id错误');
       assert(time && typeof time === 'number', '需包含时间戳');
       assert.deepStrictEqual(code, 0, '响应码错误');
-      assert.deepStrictEqual(parsedOperations.code, 0x81, '操作码错误');
-      delete parsedOperations.code;
-      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+      assert.deepStrictEqual(parsedOperations.code, operations.code, '操作码错误');
       assert.deepEqual(functionId, parseInt(Object.keys(data.params)[0]), '功能点解析失败');
     });
 
