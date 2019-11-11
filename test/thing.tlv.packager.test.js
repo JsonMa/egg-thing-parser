@@ -142,7 +142,52 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepStrictEqual(parsedOperations.code, 3, '响应码错误');
       delete parsedOperations.code;
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
-      assert.deepEqual(functionId, parseInt(Object.keys(data.params)[0]), '功能点解析失败');
+      assert.deepEqual(groupId, parseInt(Object.keys(data.params)[0]), '功能点解析失败');
+    });
+
+    it('assembel event notify request buffer', () => {
+      const version = getRandomVersion(); // 版本号
+      const id = getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'request', // 操作类型
+        type: 'device', // 设备类型
+        target: 'resource', // 操作对象 'resource'
+        method: 'notify', // 操作名
+      };
+      const groupId = generateFunctionId('buffer', 'event', getRandomResourceId('combine'));
+      const functionId = generateFunctionId('string', 'event', getRandomResourceId());
+      const packagedBufferPadyload = app.thing.tlv.packager.package({
+        version,
+        ...(id ? {
+          id,
+        } :
+          null),
+        operations,
+        data: {
+          groupId,
+          params: [{
+            functionId,
+            valueType: 'string',
+            value: JSON.stringify({
+              event: 'event-test',
+            }),
+          }],
+        },
+      }); // tlv数据封装
+      const {
+        version: parsedVersion,
+        id: parsedId,
+        operations: parsedOperations,
+        time,
+        data,
+      } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
+      assert(parsedVersion === version, '版本号错误');
+      assert(id === parsedId, '消息id错误');
+      assert(time && typeof time === 'number', '需包含时间戳');
+      assert.deepStrictEqual(parsedOperations.code, 3, '响应码错误');
+      delete parsedOperations.code;
+      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+      assert.deepEqual(groupId, parseInt(Object.keys(data.params)[0]), '功能点解析失败');
     });
 
     it('assembel read request buffer', () => {
