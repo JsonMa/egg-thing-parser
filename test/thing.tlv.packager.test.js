@@ -2,89 +2,10 @@
 
 const mock = require('egg-mock');
 const assert = require('assert');
-const chance = new require('chance')();
-const _ = require('lodash');
-
-/**
- * 生成随机版本号
- *
- * @return {String} - 版本号
- */
-function getRandomVersion() {
-  const randomVersion = chance.integer({
-    min: 1,
-    max: 100,
-  });
-  return `${randomVersion}.0.0`;
-}
-
-/**
- * 生成随机消息id
- *
- * @param {Boolean} hasMsgId - 是否需要生成消息id
- * @return {Number} - 消息id
- */
-function getRandomMsgId(hasMsgId) {
-  return hasMsgId ?
-    chance.integer({
-      min: 1,
-      max: 0xffffffff,
-    }) :
-    null;
-}
-
-/**
- * 生成resourceId
- *
- * @param {String} type  - 资源类型
- * @return {Number} - resourceId
- */
-function getRandomResourceId(type) {
-  let min = null;
-  let max = null;
-  switch (type) {
-    case 'static':
-      min = 0x700;
-      max = 0x7ff;
-      break;
-    case 'combine':
-      min = 0x500;
-      max = 0x6ff;
-      break;
-    default:
-      min = 0;
-      max = 0x4ff;
-      break;
-  }
-  const resourceId = chance.integer({
-    min,
-    max,
-  });
-  return resourceId;
-}
-
-/**
- * 生成功能点Id
- *
- * @param {Number} valueType     - 数据类型
- * @param {Number} messageType   - 消息类型
- * @param {Number} resourceId    - 资源值
- * @return {Buffer} function buffer
- * @memberof Packager
- */
-function generateFunctionId(valueType, messageType, resourceId) {
-  const dataTypeArray = [ 'boolean', 'enum', 'integer', 'float', 'buffer', 'exception', 'string' ];
-  valueType = dataTypeArray.indexOf(valueType) + 1;
-  const messageTypeArray = [ 'reserve', 'custom', 'property', 'event' ];
-  messageType = messageTypeArray.indexOf(messageType);
-  const valueTypeBits = _.padStart(valueType.toString(2), 3, '0'); // exp: '011'
-  const messageTypeBits = _.padStart(messageType.toString(2), 2, '0'); // exp: '01'
-  const resourceIdBits = _.padStart(resourceId.toString(2), 11, '0'); // exp: '00000000011'
-  return parseInt(`${valueTypeBits}${messageTypeBits}${resourceIdBits}`, 2);
-}
-
+const Utils = require('./lib/utils');
 describe('test/thing/tlv/packager.test.js', () => {
   let app;
+  const utils = new Utils(app);
   before(() => {
     app = mock.app({
       baseDir: 'apps/thing-parser-test',
@@ -103,17 +24,17 @@ describe('test/thing/tlv/packager.test.js', () => {
 
   describe('thing/tlv/packager/request', () => {
     it('assembel notify request buffer', () => {
-      const version = getRandomVersion(); // 版本号
-      const id = getRandomMsgId(true); // 消息id
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
         operation: 'request', // 操作类型
         type: 'device', // 设备类型
         target: 'resource', // 操作对象 'resource'
         method: 'notify', // 操作名
       };
-      const groupId = generateFunctionId('buffer', 'property', getRandomResourceId('combine'));
-      const functionId = generateFunctionId('exception', 'property', getRandomResourceId());
-      const packagedBufferPadyload = app.thing.tlv.packager.package({
+      const groupId = utils.generateFunctionId('buffer', 'property', utils.getRandomResourceId('combine'));
+      const functionId = utils.generateFunctionId('exception', 'property', utils.getRandomResourceId());
+      const payload = app.thing.tlv.packager.package({
         version,
         ...(id ? {
           id,
@@ -135,7 +56,7 @@ describe('test/thing/tlv/packager.test.js', () => {
         operations: parsedOperations,
         time,
         data,
-      } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
+      } = app.thing.tlv.parser.parse(payload); // tlv数据解析
       assert(parsedVersion === version, '版本号错误');
       assert(id === parsedId, '消息id错误');
       assert(time && typeof time === 'number', '需包含时间戳');
@@ -146,17 +67,17 @@ describe('test/thing/tlv/packager.test.js', () => {
     });
 
     it('assembel event notify request buffer', () => {
-      const version = getRandomVersion(); // 版本号
-      const id = getRandomMsgId(true); // 消息id
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
         operation: 'request', // 操作类型
         type: 'device', // 设备类型
         target: 'resource', // 操作对象 'resource'
         method: 'notify', // 操作名
       };
-      const groupId = generateFunctionId('buffer', 'event', getRandomResourceId('combine'));
-      const functionId = generateFunctionId('string', 'event', getRandomResourceId());
-      const packagedBufferPadyload = app.thing.tlv.packager.package({
+      const groupId = utils.generateFunctionId('buffer', 'event', utils.getRandomResourceId('combine'));
+      const functionId = utils.generateFunctionId('string', 'event', utils.getRandomResourceId());
+      const payload = app.thing.tlv.packager.package({
         version,
         ...(id ? {
           id,
@@ -180,7 +101,7 @@ describe('test/thing/tlv/packager.test.js', () => {
         operations: parsedOperations,
         time,
         data,
-      } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
+      } = app.thing.tlv.parser.parse(payload); // tlv数据解析
       assert(parsedVersion === version, '版本号错误');
       assert(id === parsedId, '消息id错误');
       assert(time && typeof time === 'number', '需包含时间戳');
@@ -191,16 +112,16 @@ describe('test/thing/tlv/packager.test.js', () => {
     });
 
     it('assembel read request buffer', () => {
-      const version = getRandomVersion(); // 版本号
-      const id = getRandomMsgId(true); // 消息id
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
         operation: 'request', // 操作类型
         type: 'device', // 设备类型
         target: 'resource', // 操作对象 'resource'
         method: 'read', // 操作名
       };
-      const functionId = generateFunctionId('string', 'property', getRandomResourceId());
-      const packagedBufferPadyload = app.thing.tlv.packager.package({
+      const functionId = utils.generateFunctionId('string', 'property', utils.getRandomResourceId());
+      const payload = app.thing.tlv.packager.package({
         version,
         ...(id ? {
           id,
@@ -219,7 +140,7 @@ describe('test/thing/tlv/packager.test.js', () => {
         operations: parsedOperations,
         time,
         data,
-      } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
+      } = app.thing.tlv.parser.parse(payload); // tlv数据解析
       assert(parsedVersion === version, '版本号错误');
       assert(id === parsedId, '消息id错误');
       assert(time && typeof time === 'number', '需包含时间戳');
@@ -230,13 +151,13 @@ describe('test/thing/tlv/packager.test.js', () => {
     });
 
     it('assembel read response buffer', () => {
-      const version = getRandomVersion(); // 版本号
-      const id = getRandomMsgId(true); // 消息id
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
         code: 129,
       };
-      const functionId = generateFunctionId('boolean', 'property', 1);
-      const packagedBufferPadyload = app.thing.tlv.packager.package({
+      const functionId = utils.generateFunctionId('boolean', 'property', 1);
+      const payload = app.thing.tlv.packager.package({
         version,
         ...(id ? {
           id,
@@ -259,7 +180,7 @@ describe('test/thing/tlv/packager.test.js', () => {
         time,
         code,
         data,
-      } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
+      } = app.thing.tlv.parser.parse(payload); // tlv数据解析
       assert(parsedVersion === version, '版本号错误');
       assert(id === parsedId, '消息id错误');
       assert(time && typeof time === 'number', '需包含时间戳');
@@ -269,16 +190,16 @@ describe('test/thing/tlv/packager.test.js', () => {
     });
 
     it('assembel write request buffer', () => {
-      const version = getRandomVersion(); // 版本号
-      const id = getRandomMsgId(true); // 消息id
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
         operation: 'request', // 操作类型
         type: 'device', // 设备类型
         target: 'resource', // 操作对象 'resource'
         method: 'write', // 操作名
       };
-      const functionId = generateFunctionId('string', 'property', getRandomResourceId());
-      const packagedBufferPadyload = app.thing.tlv.packager.package({
+      const functionId = utils.generateFunctionId('string', 'property', utils.getRandomResourceId());
+      const payload = app.thing.tlv.packager.package({
         version,
         ...(id ? {
           id,
@@ -301,7 +222,7 @@ describe('test/thing/tlv/packager.test.js', () => {
         data: {
           params,
         },
-      } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
+      } = app.thing.tlv.parser.parse(payload); // tlv数据解析
       assert(parsedVersion === version, '版本号错误');
       assert(id === parsedId, '消息id错误');
       assert(time && typeof time === 'number', '需包含时间戳');
@@ -313,15 +234,15 @@ describe('test/thing/tlv/packager.test.js', () => {
     });
 
     it('assembel write response buffer', () => {
-      const version = getRandomVersion(); // 版本号
-      const id = getRandomMsgId(true); // 消息id
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
         operation: 'response', // 操作类型
         type: 'device', // 设备类型
         target: 'resource', // 操作对象 'resource'
         method: 'write', // 操作名
       };
-      const packagedBufferPadyload = app.thing.tlv.packager.package({
+      const payload = app.thing.tlv.packager.package({
         version,
         ...(id ? {
           id,
@@ -336,7 +257,7 @@ describe('test/thing/tlv/packager.test.js', () => {
         operations: parsedOperations,
         code,
         time,
-      } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
+      } = app.thing.tlv.parser.parse(payload); // tlv数据解析
       assert(parsedVersion === version, '版本号错误');
       assert(id === parsedId, '消息id错误');
       assert(time && typeof time === 'number', '需包含时间戳');
@@ -347,19 +268,19 @@ describe('test/thing/tlv/packager.test.js', () => {
     });
 
     it('assembel non-tls register response buffer', () => {
-      const version = getRandomVersion(); // 版本号
-      const id = getRandomMsgId(true); // 消息id
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
         operation: 'response',
         type: 'device',
         target: 'system',
         method: 'register',
       };
-      const functionProductId = generateFunctionId('string', 'custom', 1);
-      const functionDeviceId = generateFunctionId('string', 'custom', 2);
-      const functionToken = generateFunctionId('string', 'custom', 3);
-      const functionBrokerAddress = generateFunctionId('string', 'custom', 4);
-      const packagedBufferPadyload = app.thing.tlv.packager.package({
+      const functionProductId = utils.generateFunctionId('string', 'custom', 1);
+      const functionDeviceId = utils.generateFunctionId('string', 'custom', 2);
+      const functionToken = utils.generateFunctionId('string', 'custom', 3);
+      const functionBrokerAddress = utils.generateFunctionId('string', 'custom', 4);
+      const payload = app.thing.tlv.packager.package({
         version,
         ...(id ? {
           id,
@@ -400,7 +321,7 @@ describe('test/thing/tlv/packager.test.js', () => {
         data: {
           params,
         },
-      } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
+      } = app.thing.tlv.parser.parse(payload); // tlv数据解析
       assert(parsedVersion === version, '版本号错误');
       assert(id === parsedId, '消息id错误');
       assert(time && typeof time === 'number', '需包含时间戳');
@@ -423,20 +344,20 @@ describe('test/thing/tlv/packager.test.js', () => {
     });
 
     it('assembel tls register response buffer', () => {
-      const version = getRandomVersion(); // 版本号
-      const id = getRandomMsgId(true); // 消息id
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
         operation: 'response',
         type: 'device',
         target: 'system',
         method: 'register',
       };
-      const functionProductId = generateFunctionId('string', 'custom', 1);
-      const functionDeviceId = generateFunctionId('string', 'custom', 2);
-      const functionToken = generateFunctionId('string', 'custom', 3);
-      const functionBrokerAddress = generateFunctionId('string', 'custom', 4);
-      const functionCRT = generateFunctionId('buffer', 'custom', 5);
-      const packagedBufferPadyload = app.thing.tlv.packager.package({
+      const functionProductId = utils.generateFunctionId('string', 'custom', 1);
+      const functionDeviceId = utils.generateFunctionId('string', 'custom', 2);
+      const functionToken = utils.generateFunctionId('string', 'custom', 3);
+      const functionBrokerAddress = utils.generateFunctionId('string', 'custom', 4);
+      const functionCRT = utils.generateFunctionId('buffer', 'custom', 5);
+      const payload = app.thing.tlv.packager.package({
         version,
         ...(id ? {
           id,
@@ -482,7 +403,7 @@ describe('test/thing/tlv/packager.test.js', () => {
         data: {
           params,
         },
-      } = app.thing.tlv.parser.parse(packagedBufferPadyload); // tlv数据解析
+      } = app.thing.tlv.parser.parse(payload); // tlv数据解析
       const functions = Object.keys(params);
       assert(parsedVersion === version, '版本号错误');
       assert(id === parsedId, '消息id错误');
