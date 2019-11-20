@@ -23,6 +23,54 @@ describe('test/thing/tlv/packager.test.js', () => {
   });
 
   describe('thing/tlv/packager/request', () => {
+    it('assembel system request buffer', () => {
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'request',
+        type: 'device',
+        target: 'system',
+        method: 'reset',
+      };
+      const payload = app.thing.tlv.packager.package({
+        version,
+        id,
+        operations,
+      }); // tlv数据封装
+      assert.deepStrictEqual(payload.readUInt8(), parseInt(version) + 0x80, '版本号错误');
+      assert.deepStrictEqual(payload.readUInt32BE(1), id, '消息id错误');
+      assert.deepStrictEqual(payload.readUInt8(5), 0x20, '操作码错误');
+    });
+
+    it('assembel system response buffer', () => {
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'response',
+        type: 'device',
+        target: 'system',
+        method: 'reset',
+      };
+      const payload = app.thing.tlv.packager.package({
+        version,
+        id,
+        operations,
+        code: 0x00,
+      }); // tlv数据封装
+      const {
+        version: parsedVersion,
+        id: parsedId,
+        operations: parsedOperations,
+        time,
+      } = app.thing.tlv.parser.parse(payload); // tlv数据解析
+      assert(parsedVersion === version, '版本号错误');
+      assert(id === parsedId, '消息id错误');
+      assert(time && typeof time === 'number', '需包含时间戳');
+      assert.deepStrictEqual(parsedOperations.code, 0xa0, '响应码错误');
+      delete parsedOperations.code;
+      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+    });
+
     it('assembel notify request buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
@@ -36,10 +84,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       const functionId = utils.generateFunctionId('exception', 'property', utils.getRandomResourceId());
       const payload = app.thing.tlv.packager.package({
         version,
-        ...(id ? {
-          id,
-        } :
-          null),
+        id,
         operations,
         data: {
           groupId,
@@ -79,10 +124,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       const functionId = utils.generateFunctionId('string', 'event', utils.getRandomResourceId());
       const payload = app.thing.tlv.packager.package({
         version,
-        ...(id ? {
-          id,
-        } :
-          null),
+        id,
         operations,
         data: {
           groupId,
@@ -123,10 +165,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       const functionId = utils.generateFunctionId('string', 'property', utils.getRandomResourceId());
       const payload = app.thing.tlv.packager.package({
         version,
-        ...(id ? {
-          id,
-        } :
-          null),
+        id,
         operations,
         data: {
           params: [{
@@ -159,10 +198,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       const functionId = utils.generateFunctionId('boolean', 'property', 1);
       const payload = app.thing.tlv.packager.package({
         version,
-        ...(id ? {
-          id,
-        } :
-          null),
+        id,
         operations,
         code: 0,
         data: {
@@ -201,10 +237,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       const functionId = utils.generateFunctionId('string', 'property', utils.getRandomResourceId());
       const payload = app.thing.tlv.packager.package({
         version,
-        ...(id ? {
-          id,
-        } :
-          null),
+        id,
         operations,
         data: {
           params: [{
@@ -244,10 +277,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       };
       const payload = app.thing.tlv.packager.package({
         version,
-        ...(id ? {
-          id,
-        } :
-          null),
+        id,
         operations,
         code: 0,
       }); // tlv数据封装
@@ -282,10 +312,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       const functionBrokerAddress = utils.generateFunctionId('string', 'custom', 4);
       const payload = app.thing.tlv.packager.package({
         version,
-        ...(id ? {
-          id,
-        } :
-          null),
+        id,
         operations,
         code: 0,
         data: {
@@ -359,10 +386,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       const functionCRT = utils.generateFunctionId('buffer', 'custom', 5);
       const payload = app.thing.tlv.packager.package({
         version,
-        ...(id ? {
-          id,
-        } :
-          null),
+        id,
         operations,
         code: 0,
         data: {
