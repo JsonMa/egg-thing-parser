@@ -78,6 +78,12 @@ describe('test/thing/tlv/parser.test.js', () => {
       delete parsedOperations.code;
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
       assert(params.length === 2, '参数错误');
+      assert.deepStrictEqual(params[0][pidFunctionId], '39068', '参数错误');
+      assert.deepStrictEqual(params[0][snFunctionId], '39068_register_test', '参数错误');
+      assert.deepStrictEqual(params[0][registerCodeFunctionId], '39068_register_code_test', '参数错误');
+      assert.deepStrictEqual(params[1][pidFunctionId], '39069', '参数错误');
+      assert.deepStrictEqual(params[1][snFunctionId], '39069_register_test', '参数错误');
+      assert.deepStrictEqual(params[1][registerCodeFunctionId], '39069_register_code_test', '参数错误');
     });
 
     it('online payload', () => {
@@ -103,7 +109,7 @@ describe('test/thing/tlv/parser.test.js', () => {
           }, {
             functionId: snFunctionId,
             valueType: 'string',
-            value: '39068_register_test',
+            value: '39068_online_test',
           }, {
             functionId: pidFunctionId,
             valueType: 'string',
@@ -111,7 +117,7 @@ describe('test/thing/tlv/parser.test.js', () => {
           }, {
             functionId: snFunctionId,
             valueType: 'string',
-            value: '39069_register_test',
+            value: '39069_online_test',
           }],
         },
       });
@@ -131,6 +137,10 @@ describe('test/thing/tlv/parser.test.js', () => {
       delete parsedOperations.code;
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
       assert(params.length === 2, '参数错误');
+      assert.deepStrictEqual(params[0][pidFunctionId], '39068', '参数错误');
+      assert.deepStrictEqual(params[0][snFunctionId], '39068_online_test', '参数错误');
+      assert.deepStrictEqual(params[1][pidFunctionId], '39069', '参数错误');
+      assert.deepStrictEqual(params[1][snFunctionId], '39069_online_test', '参数错误');
     });
 
     it('notify payload', () => {
@@ -220,6 +230,10 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.deepStrictEqual(params[0][commonFunctionId1].value, 39068, '参数值错误');
       assert(params[0][commonFunctionId1].time, '参数值时间戳错误');
       assert.deepStrictEqual(params[0][commonFunctionId3].value, '39068-string-test', '参数值错误');
+      assert.deepStrictEqual(params[1][commonFunctionId2].value, '39069-string-test', '参数值错误');
+      assert(params[1][commonFunctionId2].time, '参数值时间戳错误');
+      assert.deepStrictEqual(params[1][commonFunctionId4].value, 39069, '参数值错误');
+      assert(params[1][commonFunctionId4].time, '参数值时间戳错误');
     });
   });
 });
