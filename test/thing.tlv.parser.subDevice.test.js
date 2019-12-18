@@ -159,6 +159,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       const commonFunctionId2 = utils.generateFunctionId('string', 'property', 5);
       const commonFunctionId3 = utils.generateFunctionId('string', 'property', 6);
       const commonFunctionId4 = utils.generateFunctionId('integer', 'property', 7);
+      const groupId = utils.generateFunctionId('buffer', 'property', utils.getRandomResourceId('combine'));
       const payload = app.thing.tlv.packager.package({
         version,
         id,
@@ -173,9 +174,12 @@ describe('test/thing/tlv/parser.test.js', () => {
             valueType: 'string',
             value: '39068_register_test',
           }, {
-            functionId: commonFunctionId1,
-            valueType: 'integer',
-            value: 39068,
+            groupId,
+            params: [{
+              functionId: commonFunctionId1,
+              valueType: 'integer',
+              value: 39068,
+            }],
           }, {
             functionId: timeFunctionId,
             valueType: 'string',
