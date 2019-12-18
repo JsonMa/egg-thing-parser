@@ -227,9 +227,13 @@ describe('test/thing/tlv/parser.test.js', () => {
       delete parsedOperations.code;
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
       assert(params.length === 2, '参数错误');
+      assert.deepStrictEqual(params[0][59393].value, '39068', '产品id错误');
+      assert.deepStrictEqual(params[0][59394].value, '39068_register_test', '设备sn错误');
       assert.deepStrictEqual(params[0][commonFunctionId1].value, 39068, '参数值错误');
       assert(params[0][commonFunctionId1].time, '参数值时间戳错误');
       assert.deepStrictEqual(params[0][commonFunctionId3].value, '39068-string-test', '参数值错误');
+      assert.deepStrictEqual(params[1][59393].value, '39069', '产品id错误');
+      assert.deepStrictEqual(params[1][59394].value, '39069_register_test', '设备sn错误');
       assert.deepStrictEqual(params[1][commonFunctionId2].value, '39069-string-test', '参数值错误');
       assert(params[1][commonFunctionId2].time, '参数值时间戳错误');
       assert.deepStrictEqual(params[1][commonFunctionId4].value, 39069, '参数值错误');
