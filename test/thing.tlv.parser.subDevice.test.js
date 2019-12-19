@@ -174,12 +174,9 @@ describe('test/thing/tlv/parser.test.js', () => {
             valueType: 'string',
             value: '39068_register_test',
           }, {
-            groupId,
-            params: [{
-              functionId: commonFunctionId1,
-              valueType: 'integer',
-              value: 39068,
-            }],
+            functionId: commonFunctionId1,
+            valueType: 'integer',
+            value: 39068,
           }, {
             functionId: timeFunctionId,
             valueType: 'string',
