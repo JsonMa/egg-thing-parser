@@ -159,7 +159,8 @@ describe('test/thing/tlv/parser.test.js', () => {
       const commonFunctionId2 = utils.generateFunctionId('string', 'property', 5);
       const commonFunctionId3 = utils.generateFunctionId('string', 'property', 6);
       const commonFunctionId4 = utils.generateFunctionId('integer', 'property', 7);
-      const groupId = utils.generateFunctionId('buffer', 'property', utils.getRandomResourceId('combine'));
+      const currentTimeStamp = Date.now().toString();
+      const subDeviceGroupId = utils.generateFunctionId('buffer', 'property', utils.getRandomResourceId('combine'));
       const payload = app.thing.tlv.packager.package({
         version,
         id,
@@ -174,13 +175,16 @@ describe('test/thing/tlv/parser.test.js', () => {
             valueType: 'string',
             value: '39068_register_test',
           }, {
-            functionId: commonFunctionId1,
-            valueType: 'integer',
-            value: 39068,
+            subDeviceGroupId,
+            subDeviceGroupParams: [{
+              functionId: commonFunctionId1,
+              valueType: 'integer',
+              value: 39068,
+            }],
           }, {
             functionId: timeFunctionId,
             valueType: 'string',
-            value: Date.now().toString(),
+            value: currentTimeStamp,
           }, {
             functionId: commonFunctionId3,
             valueType: 'string',
@@ -200,7 +204,7 @@ describe('test/thing/tlv/parser.test.js', () => {
           }, {
             functionId: timeFunctionId,
             valueType: 'string',
-            value: Date.now().toString(),
+            value: currentTimeStamp,
           }, {
             functionId: commonFunctionId4,
             valueType: 'integer',
@@ -208,7 +212,7 @@ describe('test/thing/tlv/parser.test.js', () => {
           }, {
             functionId: timeFunctionId,
             valueType: 'string',
-            value: Date.now().toString(),
+            value: currentTimeStamp,
           }],
         },
       });
@@ -231,14 +235,15 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.deepStrictEqual(params[0][59393].value, '39068', '产品id错误');
       assert.deepStrictEqual(params[0][59394].value, '39068_register_test', '设备sn错误');
       assert.deepStrictEqual(params[0][commonFunctionId1].value, 39068, '参数值错误');
-      assert(params[0][commonFunctionId1].time, '参数值时间戳错误');
+      assert.deepStrictEqual(params[0][commonFunctionId1].time, currentTimeStamp, '参数值时间戳错误');
+      assert(params[0][commonFunctionId3].time, '缺少时间参数');
       assert.deepStrictEqual(params[0][commonFunctionId3].value, '39068-string-test', '参数值错误');
       assert.deepStrictEqual(params[1][59393].value, '39069', '产品id错误');
       assert.deepStrictEqual(params[1][59394].value, '39069_register_test', '设备sn错误');
       assert.deepStrictEqual(params[1][commonFunctionId2].value, '39069-string-test', '参数值错误');
-      assert(params[1][commonFunctionId2].time, '参数值时间戳错误');
+      assert.deepStrictEqual(params[1][commonFunctionId2].time, currentTimeStamp, '参数值时间戳错误');
       assert.deepStrictEqual(params[1][commonFunctionId4].value, 39069, '参数值错误');
-      assert(params[1][commonFunctionId4].time, '参数值时间戳错误');
+      assert.deepStrictEqual(params[1][commonFunctionId4].time, currentTimeStamp, '参数值时间戳错误');
     });
   });
 });
