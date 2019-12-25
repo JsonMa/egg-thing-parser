@@ -159,6 +159,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       const commonFunctionId2 = utils.generateFunctionId('string', 'property', 5);
       const commonFunctionId3 = utils.generateFunctionId('string', 'property', 6);
       const commonFunctionId4 = utils.generateFunctionId('integer', 'property', 7);
+      const commonFunctionId5 = utils.generateFunctionId('string', 'property', 8);
       const currentTimeStamp = Date.now().toString();
       const subDeviceGroupId = utils.generateFunctionId('buffer', 'property', utils.getRandomResourceId('combine'));
       const payload = app.thing.tlv.packager.package({
@@ -180,6 +181,10 @@ describe('test/thing/tlv/parser.test.js', () => {
               functionId: commonFunctionId1,
               valueType: 'integer',
               value: 39068,
+            }, {
+              functionId: commonFunctionId5,
+              valueType: 'string',
+              value: '39068_sub_string',
             }],
           }, {
             functionId: timeFunctionId,
@@ -234,8 +239,8 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert(params.length === 2, '参数错误');
       assert.deepStrictEqual(params[0][59393].value, '39068', '产品id错误');
       assert.deepStrictEqual(params[0][59394].value, '39068_register_test', '设备sn错误');
-      assert.deepStrictEqual(params[0][subDeviceGroupId].value[0].value, 39068, '参数值错误');
-      assert.deepStrictEqual(params[0][subDeviceGroupId].value[0].functionId, commonFunctionId1, '参数值时间戳错误');
+      assert.deepStrictEqual(params[0][subDeviceGroupId].value[commonFunctionId1].value, 39068, '参数值错误');
+      assert.deepStrictEqual(params[0][subDeviceGroupId].value[commonFunctionId5].value, '39068_sub_string', '参数值错误');
       assert(params[0][commonFunctionId3].time, '缺少时间参数');
       assert.deepStrictEqual(params[0][commonFunctionId3].value, '39068-string-test', '参数值错误');
       assert.deepStrictEqual(params[1][59393].value, '39069', '产品id错误');
@@ -244,6 +249,39 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.deepStrictEqual(params[1][commonFunctionId2].time, currentTimeStamp, '参数值时间戳错误');
       assert.deepStrictEqual(params[1][commonFunctionId4].value, 39069, '参数值错误');
       assert.deepStrictEqual(params[1][commonFunctionId4].time, currentTimeStamp, '参数值时间戳错误');
+    });
+
+    it('write response payload', () => {
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'response',
+        type: 'subDevice',
+        target: 'resource',
+        method: 'write',
+      };
+      const payload = app.thing.tlv.packager.package({
+        version,
+        id,
+        operations,
+        code: 0,
+      });
+      const {
+        version: parsedVersion,
+        operations: parsedOperations,
+        data: {
+          params,
+        },
+        time,
+        code,
+      } = app.thing.tlv.parser.parse(payload);
+      assert(parsedVersion === version, '版本号错误');
+      assert(time && typeof time === 'number', '需包含时间戳');
+      assert(code === 0, '响应码错误');
+      assert.deepStrictEqual(parsedOperations.code, 194, '操作码错误');
+      delete parsedOperations.code;
+      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+      assert(!params, '参数错误');
     });
   });
 });
