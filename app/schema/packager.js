@@ -92,8 +92,41 @@ module.exports = {
               value: {
                 type: [ 'string', 'boolean', 'number', 'object' ],
               },
+              subDeviceGroupId: {
+                type: 'integer',
+                maximum: 65535, // 0xffff
+                minimum: 512, // 001 00 00000000000b
+              },
+              subDeviceGroupParams: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    functionId: {
+                      type: 'integer',
+                      minimum: 512, // 001 00 00000000000b
+                      maximum: 0xffff,
+                    }, // 普通功能点id
+                    valueType: {
+                      type: 'string',
+                      enum: [
+                        'boolean',
+                        'enum',
+                        'integer',
+                        'float',
+                        'buffer',
+                        'exception',
+                        'string',
+                      ],
+                    },
+                    value: {
+                      type: [ 'string', 'boolean', 'number', 'object' ],
+                    },
+                  },
+                  additionalProperties: false,
+                },
+              },
             },
-            required: [ 'functionId' ],
             additionalProperties: false,
           },
         },
