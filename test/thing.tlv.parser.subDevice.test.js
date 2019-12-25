@@ -283,5 +283,57 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
       assert(!params, '参数错误');
     });
+
+    it('read request payload', () => {
+      const pidFunctionId = utils.generateFunctionId('string', 'custom', 1);
+      const snFunctionId = utils.generateFunctionId('string', 'custom', 2);
+      const readFunctionId = utils.generateFunctionId('integer', 'custom', 3);
+      const readFunctionValue = utils.generateFunctionId('string', 'property', 1);
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'request',
+        type: 'subDevice',
+        target: 'resource',
+        method: 'read',
+      };
+      const payload = app.thing.tlv.packager.package({
+        version,
+        id,
+        operations,
+        data: {
+          params: [{
+            functionId: pidFunctionId,
+            valueType: 'string',
+            value: '39068',
+          }, {
+            functionId: snFunctionId,
+            valueType: 'string',
+            value: '39068_register_test',
+          }, {
+            functionId: readFunctionId,
+            valueType: 'integer',
+            value: readFunctionValue,
+          }],
+        },
+      });
+      const {
+        version: parsedVersion,
+        operations: parsedOperations,
+        data: {
+          params,
+        },
+        time,
+      } = app.thing.tlv.parser.parse(payload);
+      assert(parsedVersion === version, '版本号错误');
+      assert(time && typeof time === 'number', '需包含时间戳');
+      assert.deepStrictEqual(parsedOperations.code, 65, '操作码错误');
+      delete parsedOperations.code;
+      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+      assert.deepStrictEqual(params[0][pidFunctionId].functionId, pidFunctionId, '子设备产品ID错误');
+      assert.deepStrictEqual(params[0][snFunctionId].functionId, snFunctionId, '子设备SN错误');
+      assert.deepStrictEqual(params[0][readFunctionId].functionId, readFunctionId, '子设备READ功能点错误');
+      assert.deepStrictEqual(params[0][readFunctionId].value, readFunctionValue, '子设备READ功能点值错误');
+    });
   });
 });
