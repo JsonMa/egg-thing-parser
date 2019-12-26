@@ -251,6 +251,116 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.deepStrictEqual(params[1][commonFunctionId4].time, currentTimeStamp, '参数值时间戳错误');
     });
 
+    it('write group request payload', () => {
+      const writeFunctionId = utils.generateFunctionId('boolean', 'property', 1);
+      const pidFunctionId = utils.generateFunctionId('string', 'custom', 1);
+      const snFunctionId = utils.generateFunctionId('string', 'custom', 2);
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'request',
+        type: 'subDevice',
+        target: 'resource',
+        method: 'write',
+      };
+      const payload = app.thing.tlv.packager.package({
+        version,
+        id,
+        operations,
+        data: {
+          params: [
+            {
+              functionId: pidFunctionId,
+              valueType: 'string',
+              value: '39098',
+            },
+            {
+              functionId: snFunctionId,
+              valueType: 'string',
+              value: '39098_test_sn',
+            }, {
+              functionId: writeFunctionId,
+              valueType: 'boolean',
+              value: false,
+            }],
+        },
+      });
+
+      const {
+        version: parsedVersion,
+        operations: parsedOperations,
+        data: {
+          params,
+        },
+        time,
+      } = app.thing.tlv.parser.parse(payload);
+      assert(parsedVersion === version, '版本号错误');
+      assert(time && typeof time === 'number', '需包含时间戳');
+      assert.deepStrictEqual(parsedOperations.code, 66, '操作码错误');
+      delete parsedOperations.code;
+      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+      assert.deepStrictEqual(params[0][pidFunctionId].functionId, pidFunctionId, '产品ID功能点错误');
+      assert.deepStrictEqual(params[0][snFunctionId].functionId, snFunctionId, '设备SN功能点错误');
+      assert.deepStrictEqual(params[0][writeFunctionId].value, false, '子设备功能值错误');
+    });
+
+    it('write group request payload', () => {
+      const writeFunctionId = utils.generateFunctionId('boolean', 'property', 1);
+      const subDeviceGroupId = utils.generateFunctionId('buffer', 'property', utils.getRandomResourceId('combine'));
+      const pidFunctionId = utils.generateFunctionId('string', 'custom', 1);
+      const snFunctionId = utils.generateFunctionId('string', 'custom', 2);
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'request',
+        type: 'subDevice',
+        target: 'resource',
+        method: 'write',
+      };
+      const payload = app.thing.tlv.packager.package({
+        version,
+        id,
+        operations,
+        data: {
+          params: [
+            {
+              functionId: pidFunctionId,
+              valueType: 'string',
+              value: '39098',
+            },
+            {
+              functionId: snFunctionId,
+              valueType: 'string',
+              value: '39098_test_sn',
+            }, {
+              subDeviceGroupId,
+              subDeviceGroupParams: [{
+                functionId: writeFunctionId,
+                valueType: 'boolean',
+                value: false,
+              }],
+            }],
+        },
+      });
+
+      const {
+        version: parsedVersion,
+        operations: parsedOperations,
+        data: {
+          params,
+        },
+        time,
+      } = app.thing.tlv.parser.parse(payload);
+      assert(parsedVersion === version, '版本号错误');
+      assert(time && typeof time === 'number', '需包含时间戳');
+      assert.deepStrictEqual(parsedOperations.code, 66, '操作码错误');
+      delete parsedOperations.code;
+      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+      assert.deepStrictEqual(params[0][pidFunctionId].functionId, pidFunctionId, '产品ID功能点错误');
+      assert.deepStrictEqual(params[0][snFunctionId].functionId, snFunctionId, '设备SN功能点错误');
+      assert.deepStrictEqual(params[0][subDeviceGroupId].value[0].value, false, '子设备组合功能点子功能值错误');
+    });
+
     it('write response payload', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
