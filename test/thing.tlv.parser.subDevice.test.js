@@ -502,6 +502,8 @@ describe('test/thing/tlv/parser.test.js', () => {
     });
 
     it('read group response payload', () => {
+      const pidFunctionId = utils.generateFunctionId('string', 'custom', 1);
+      const snFunctionId = utils.generateFunctionId('string', 'custom', 2);
       const readFunctionId = utils.generateFunctionId('boolean', 'property', 1);
       const subDeviceGroupId = utils.generateFunctionId('buffer', 'property', utils.getRandomResourceId('combine'));
       const version = utils.getRandomVersion(); // 版本号
@@ -518,11 +520,21 @@ describe('test/thing/tlv/parser.test.js', () => {
         operations,
         code: 0,
         data: {
-          groupId: subDeviceGroupId,
           params: [{
-            functionId: readFunctionId,
-            valueType: 'boolean',
-            value: true,
+            functionId: pidFunctionId,
+            valueType: 'string',
+            value: '39068',
+          }, {
+            functionId: snFunctionId,
+            valueType: 'string',
+            value: '39068_register_test',
+          }, {
+            subDeviceGroupId,
+            subDeviceGroupParams: [{
+              functionId: readFunctionId,
+              valueType: 'boolean',
+              value: true,
+            }],
           }],
         },
       });
