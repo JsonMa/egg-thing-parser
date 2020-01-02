@@ -251,7 +251,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.deepStrictEqual(params[1][commonFunctionId4].time, currentTimeStamp, '参数值时间戳错误');
     });
 
-    it('write group request payload', () => {
+    it('write request payload', () => {
       const writeFunctionId = utils.generateFunctionId('boolean', 'property', 1);
       const pidFunctionId = utils.generateFunctionId('string', 'custom', 1);
       const snFunctionId = utils.generateFunctionId('string', 'custom', 2);
@@ -364,6 +364,8 @@ describe('test/thing/tlv/parser.test.js', () => {
     it('write response payload', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
+      const pidFunctionId = utils.generateFunctionId('string', 'custom', 1);
+      const snFunctionId = utils.generateFunctionId('string', 'custom', 2);
       const operations = {
         operation: 'response',
         type: 'subDevice',
@@ -375,6 +377,19 @@ describe('test/thing/tlv/parser.test.js', () => {
         id,
         operations,
         code: 0,
+        data: {
+          params: [
+            {
+              functionId: pidFunctionId,
+              valueType: 'string',
+              value: '39098',
+            },
+            {
+              functionId: snFunctionId,
+              valueType: 'string',
+              value: '39098_test_sn',
+            }],
+        },
       });
       const {
         version: parsedVersion,
@@ -391,7 +406,8 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.deepStrictEqual(parsedOperations.code, 194, '操作码错误');
       delete parsedOperations.code;
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
-      assert(!params, '参数错误');
+      assert.deepStrictEqual(params[0][pidFunctionId].functionId, pidFunctionId, '子设备产品ID错误');
+      assert.deepStrictEqual(params[0][snFunctionId].functionId, snFunctionId, '子设备SN错误');
     });
 
     it('read request payload', () => {
