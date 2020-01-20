@@ -37,6 +37,7 @@ module.exports = {
             'upgrade',
             'online',
             'offline',
+            'deleteTopology',
           ],
         },
         target: {

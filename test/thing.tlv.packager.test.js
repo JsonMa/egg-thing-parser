@@ -23,6 +23,43 @@ describe('test/thing/tlv/packager.test.js', () => {
   });
 
   describe('thing/tlv/packager/request', () => {
+    it('should catch ajv error ', () => {
+      const illegalVersion = 12; // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
+      let error = null;
+      const operations = {
+        operation: 'request',
+        type: 'device',
+        target: 'system',
+        method: 'reset',
+      };
+      try {
+        app.thing.tlv.packager.package({
+          version: illegalVersion,
+          id,
+          operations,
+        }); // tlv数据封装
+      } catch (err) {
+        error = err;
+      }
+      assert.deepStrictEqual(error.status, 400, '应当到捕获参数错误');
+    });
+
+    it('should get default version', () => {
+      const id = utils.getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'request',
+        type: 'device',
+        target: 'system',
+        method: 'reset',
+      };
+      const payload = app.thing.tlv.packager.package({
+        id,
+        operations,
+      }); // tlv数据封装
+      assert.deepStrictEqual(payload.readUInt8(), 1 + 0x80, '未获取到默认的版本号');
+    });
+
     it('assemble system request buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
@@ -80,16 +117,9 @@ describe('test/thing/tlv/packager.test.js', () => {
         target: 'resource', // 操作对象 'resource'
         method: 'notify', // 操作名
       };
-      const groupId = utils.generateFunctionId(
-        'buffer',
-        'property',
-        utils.getRandomResourceId('combine')
-      );
-      const functionId = utils.generateFunctionId(
-        'exception',
-        'property',
-        utils.getRandomResourceId()
-      );
+      const groupId = utils.generateFunctionId('buffer', 'property', utils.getRandomResourceId('combine'));
+      const functionId = utils.generateFunctionId('exception', 'property', utils.getRandomResourceId());
+      const functionId2 = utils.generateFunctionId('string', 'property', utils.getRandomResourceId());
       const payload = app.thing.tlv.packager.package({
         version,
         id,
@@ -100,6 +130,10 @@ describe('test/thing/tlv/packager.test.js', () => {
             functionId,
             valueType: 'exception',
             value: 5,
+          }, {
+            functionId: functionId2,
+            valueType: 'string',
+            value: utils.getFixedLengthString(100),
           }],
         },
       }); // tlv数据封装
@@ -117,6 +151,90 @@ describe('test/thing/tlv/packager.test.js', () => {
       delete parsedOperations.code;
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
       assert.deepEqual(groupId, parseInt(Object.keys(data.params)[0]), '功能点解析失败');
+    });
+
+    it('assemble middle length string notify request buffer', () => {
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'request', // 操作类型
+        type: 'device', // 设备类型
+        target: 'resource', // 操作对象 'resource'
+        method: 'notify', // 操作名
+      };
+      const groupId = utils.generateFunctionId('buffer', 'property', utils.getRandomResourceId('combine'));
+      const functionId = utils.generateFunctionId('string', 'property', utils.getRandomResourceId());
+      const middleLengthString = utils.getFixedLengthString(16384);
+      const payload = app.thing.tlv.packager.package({
+        version,
+        id,
+        operations,
+        data: {
+          groupId,
+          params: [{
+            functionId,
+            valueType: 'string',
+            value: middleLengthString,
+          }],
+        },
+      }); // tlv数据封装
+      const {
+        version: parsedVersion,
+        id: parsedId,
+        operations: parsedOperations,
+        time,
+        data,
+      } = app.thing.tlv.parser.parse(payload); // tlv数据解析
+      assert(parsedVersion === version, '版本号错误');
+      assert(id === parsedId, '消息id错误');
+      assert(time && typeof time === 'number', '需包含时间戳');
+      assert.deepStrictEqual(parsedOperations.code, 3, '响应码错误');
+      delete parsedOperations.code;
+      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+      assert.deepStrictEqual(groupId, parseInt(Object.keys(data.params)[0]), '组合功能点解析失败');
+      assert.deepStrictEqual(middleLengthString, data.params[groupId].value[functionId].value, '功能点解析失败');
+    });
+
+    it('assemble big length string notify request buffer', () => {
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'request', // 操作类型
+        type: 'device', // 设备类型
+        target: 'resource', // 操作对象 'resource'
+        method: 'notify', // 操作名
+      };
+      const groupId = utils.generateFunctionId('buffer', 'property', utils.getRandomResourceId('combine'));
+      const functionId = utils.generateFunctionId('string', 'property', utils.getRandomResourceId());
+      const bigLengthString = utils.getFixedLengthString(4194304);
+      const payload = app.thing.tlv.packager.package({
+        version,
+        id,
+        operations,
+        data: {
+          groupId,
+          params: [{
+            functionId,
+            valueType: 'string',
+            value: bigLengthString,
+          }],
+        },
+      }); // tlv数据封装
+      const {
+        version: parsedVersion,
+        id: parsedId,
+        operations: parsedOperations,
+        time,
+        data,
+      } = app.thing.tlv.parser.parse(payload); // tlv数据解析
+      assert(parsedVersion === version, '版本号错误');
+      assert(id === parsedId, '消息id错误');
+      assert(time && typeof time === 'number', '需包含时间戳');
+      assert.deepStrictEqual(parsedOperations.code, 3, '响应码错误');
+      delete parsedOperations.code;
+      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+      assert.deepStrictEqual(groupId, parseInt(Object.keys(data.params)[0]), '功能点解析失败');
+      assert.deepStrictEqual(bigLengthString, data.params[groupId].value[functionId].value, '功能点解析失败');
     });
 
     it('assemble event notify request buffer', () => {

@@ -27,6 +27,36 @@ class Utils {
   }
 
   /**
+   * 随机生成字符串
+   *
+   * @param {String} length - length
+   * @return {String} - 产品id
+   * @memberof Utils
+   */
+  getFixedLengthString(length) {
+    const randomString = chance.string({
+      length,
+      pool: 'abcdefghijklmnopgrstuvwxyz0123456789',
+    });
+    return randomString;
+  }
+
+  /**
+   * 随机生成Buffer
+   *
+   * @param {String} length - length
+   * @return {String} - 产品id
+   * @memberof Utils
+   */
+  getFixedLengthBuffer(length) {
+    const randomBufferString = chance.string({
+      length,
+      pool: 'abcdef0123456789',
+    });
+    return Buffer.from(randomBufferString, 'hex');
+  }
+
+  /**
    * 生成随机devkey
    *
    * @return {String} - devkey
@@ -120,7 +150,7 @@ class Utils {
     return parseInt(`${valueTypeBits}${messageTypeBits}${resourceIdBits}`, 2);
   }
 
-  async addThingModelFunction(pid, functiuonId, type, hasUpPermission, hasDownPermission) {
+  async addThingModelFunction(pid, functionId, type, hasUpPermission, hasDownPermission, eventProperties) {
     let schema = {
       type: 'object',
       additionalProperties: false,
@@ -128,14 +158,12 @@ class Utils {
     };
     let up = [];
     let down = [];
-    hasUpPermission && up.push(functiuonId);
-    hasDownPermission && down.push(functiuonId);
+    hasUpPermission && up.push(functionId);
+    hasDownPermission && down.push(functionId);
     const thingModelString = await this.app.redis.hget('thing_model', pid);
     if (!thingModelString) {
       if (type) {
-        schema.properties[functiuonId] = {
-          type,
-        };
+        schema.properties[functionId] = type === 'object' ? Object.assign({}, { type, additionalProperties: false, properties: eventProperties }) : { type };
       }
     } else {
       const {
@@ -144,18 +172,16 @@ class Utils {
         down: originalDown,
       } = JSON.parse(thingModelString);
       if (type) {
-        originalSchema.properties[functiuonId] = {
-          type,
-        };
-        schema = originalSchema;
+        originalSchema.properties[functionId] = type === 'object' ? Object.assign({}, { type, additionalProperties: false, properties: eventProperties }) : { type };
       }
-      up = up.concat(originalUp);
-      down = down.concat(originalDown);
+      schema = originalSchema;
+      up = new Set([ ...originalUp, ...up ]);
+      down = new Set([ ...originalDown, ...down ]);
     }
     await this.app.redis.hset('thing_model', pid, JSON.stringify({
       schema,
-      up,
-      down,
+      up: [ ...up ],
+      down: [ ...down ],
     }));
   }
 

@@ -143,6 +143,63 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.deepStrictEqual(params[1][snFunctionId], '39069_online_test', '参数错误');
     });
 
+    it('offline payload', () => {
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'request',
+        type: 'subDevice',
+        target: 'system',
+        method: 'offline',
+      };
+      const pidFunctionId = utils.generateFunctionId('string', 'custom', 1);
+      const snFunctionId = utils.generateFunctionId('string', 'custom', 2);
+      const payload = app.thing.tlv.packager.package({
+        version,
+        id,
+        operations,
+        data: {
+          params: [{
+            functionId: pidFunctionId,
+            valueType: 'string',
+            value: '39068',
+          }, {
+            functionId: snFunctionId,
+            valueType: 'string',
+            value: '39068_offline_test',
+          }, {
+            functionId: pidFunctionId,
+            valueType: 'string',
+            value: '39069',
+          }, {
+            functionId: snFunctionId,
+            valueType: 'string',
+            value: '39069_offline_test',
+          }],
+        },
+      });
+      const {
+        version: parsedVersion,
+        operations: parsedOperations,
+        data: {
+          params,
+        },
+        time,
+        code,
+      } = app.thing.tlv.parser.parse(payload);
+      assert(parsedVersion === version, '版本号错误');
+      assert(time && typeof time === 'number', '需包含时间戳');
+      assert(code === null, '响应码错误');
+      assert.deepStrictEqual(parsedOperations.code, 126, '操作码错误');
+      delete parsedOperations.code;
+      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+      assert(params.length === 2, '参数错误');
+      assert.deepStrictEqual(params[0][pidFunctionId], '39068', '参数错误');
+      assert.deepStrictEqual(params[0][snFunctionId], '39068_offline_test', '参数错误');
+      assert.deepStrictEqual(params[1][pidFunctionId], '39069', '参数错误');
+      assert.deepStrictEqual(params[1][snFunctionId], '39069_offline_test', '参数错误');
+    });
+
     it('notify payload', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
