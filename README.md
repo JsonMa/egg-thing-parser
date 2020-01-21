@@ -9,12 +9,12 @@
 
 [npm-image]: https://img.shields.io/npm/v/egg-thing-parser.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/egg-thing-parser
-[travis-image]: https://img.shields.io/travis/eggjs/egg-thing-parser.svg?style=flat-square
-[travis-url]: https://travis-ci.org/eggjs/egg-thing-parser
-[codecov-image]: https://img.shields.io/codecov/c/github/eggjs/egg-thing-parser.svg?style=flat-square
-[codecov-url]: https://codecov.io/github/eggjs/egg-thing-parser?branch=master
-[david-image]: https://img.shields.io/david/eggjs/egg-thing-parser.svg?style=flat-square
-[david-url]: https://david-dm.org/eggjs/egg-thing-parser
+[travis-image]: https://travis-ci.org/JsonMa/egg-thing-parser.svg?branch=master
+[travis-url]: https://travis-ci.org/JsonMa/egg-thing-parser
+[codecov-image]: https://codecov.io/gh/JsonMa/egg-thing-parser/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/JsonMa/egg-thing-parser
+[david-image]: https://img.shields.io/david/JsonMa/egg-thing-parser.svg?style=flat-square
+[david-url]: https://david-dm.org/JsonMa/egg-thing-parser
 [snyk-image]: https://snyk.io/test/npm/egg-thing-parser/badge.svg?style=flat-square
 [snyk-url]: https://snyk.io/test/npm/egg-thing-parser
 [download-image]: https://img.shields.io/npm/dm/egg-thing-parser.svg?style=flat-square
