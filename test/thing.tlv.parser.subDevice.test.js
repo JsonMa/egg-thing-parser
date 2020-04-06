@@ -423,6 +423,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       const id = utils.getRandomMsgId(true); // 消息id
       const pidFunctionId = utils.generateFunctionId('string', 'custom', 1);
       const snFunctionId = utils.generateFunctionId('string', 'custom', 2);
+      const writeFunctionId = utils.generateFunctionId('string', 'custom', 3);
       const operations = {
         operation: 'response',
         type: 'subDevice',
@@ -445,6 +446,9 @@ describe('test/thing/tlv/parser.test.js', () => {
               functionId: snFunctionId,
               valueType: 'string',
               value: '39098_test_sn',
+            },
+            {
+              functionId: writeFunctionId,
             }],
         },
       });
@@ -463,14 +467,14 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.deepStrictEqual(parsedOperations.code, 194, '操作码错误');
       delete parsedOperations.code;
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
-      assert.deepStrictEqual(params[0][pidFunctionId].functionId, pidFunctionId, '子设备产品ID错误');
-      assert.deepStrictEqual(params[0][snFunctionId].functionId, snFunctionId, '子设备SN错误');
+      assert.deepStrictEqual(params[0][pidFunctionId], '39098', '子设备产品ID错误');
+      assert.deepStrictEqual(params[0][snFunctionId], '39098_test_sn', '子设备SN错误');
+      assert.deepStrictEqual(params[0][writeFunctionId], null, '子设备SN错误');
     });
 
     it('read request payload', () => {
       const pidFunctionId = utils.generateFunctionId('string', 'custom', 1);
       const snFunctionId = utils.generateFunctionId('string', 'custom', 2);
-      const readFunctionId = utils.generateFunctionId('integer', 'custom', 3);
       const readFunctionValue = utils.generateFunctionId('string', 'property', 1);
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
