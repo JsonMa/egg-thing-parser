@@ -494,9 +494,7 @@ describe('test/thing/tlv/parser.test.js', () => {
             valueType: 'string',
             value: '39068_register_test',
           }, {
-            functionId: readFunctionId,
-            valueType: 'integer',
-            value: readFunctionValue,
+            functionId: readFunctionValue,
           }],
         },
       });
@@ -513,10 +511,9 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.deepStrictEqual(parsedOperations.code, 65, '操作码错误');
       delete parsedOperations.code;
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
-      assert.deepStrictEqual(params[0][pidFunctionId].functionId, pidFunctionId, '子设备产品ID错误');
-      assert.deepStrictEqual(params[0][snFunctionId].functionId, snFunctionId, '子设备SN错误');
-      assert.deepStrictEqual(params[0][readFunctionId].functionId, readFunctionId, '子设备READ功能点错误');
-      assert.deepStrictEqual(params[0][readFunctionId].value, readFunctionValue, '子设备READ功能点值错误');
+      assert.deepStrictEqual(params[0][pidFunctionId], '39068', '子设备产品ID错误');
+      assert.deepStrictEqual(params[0][snFunctionId], '39068_register_test', '子设备SN错误');
+      assert.deepStrictEqual(params[0][readFunctionValue], null, '子设备READ功能点错误');
     });
 
     it('read response payload', () => {
