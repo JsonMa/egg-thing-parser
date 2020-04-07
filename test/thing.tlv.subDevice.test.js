@@ -524,7 +524,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       const pidFunctionId = utils.generateFunctionId('string', 'custom', 1);
       const snFunctionId = utils.generateFunctionId('string', 'custom', 2);
       const readFunctionId = utils.generateFunctionId('integer', 'custom', 3);
-      const readFunctionValue = utils.generateFunctionId('string', 'property', 1);
+      const readFunctionId2 = utils.generateFunctionId('integer', 'custom', 4);
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -550,7 +550,11 @@ describe('test/thing/tlv/parser.test.js', () => {
           }, {
             functionId: readFunctionId,
             valueType: 'integer',
-            value: readFunctionValue,
+            value: 39068,
+          }, {
+            functionId: readFunctionId2,
+            valueType: 'integer',
+            value: 39069,
           }],
         },
       });
@@ -572,7 +576,8 @@ describe('test/thing/tlv/parser.test.js', () => {
       assert.deepStrictEqual(params[0][pidFunctionId].functionId, pidFunctionId, '子设备产品ID错误');
       assert.deepStrictEqual(params[0][snFunctionId].functionId, snFunctionId, '子设备SN错误');
       assert.deepStrictEqual(params[0][readFunctionId].functionId, readFunctionId, '子设备READ功能点错误');
-      assert.deepStrictEqual(params[0][readFunctionId].value, readFunctionValue, '子设备READ功能点值错误');
+      assert.deepStrictEqual(params[0][readFunctionId].value, 39068, '子设备READ功能点值错误');
+      assert.deepStrictEqual(params[0][readFunctionId2].value, 39069, '子设备READ功能点值错误');
     });
 
     it('read group response payload', () => {
@@ -580,6 +585,7 @@ describe('test/thing/tlv/parser.test.js', () => {
       const snFunctionId = utils.generateFunctionId('string', 'custom', 2);
       const readFunctionId = utils.generateFunctionId('boolean', 'property', 1);
       const subDeviceGroupId = utils.generateFunctionId('buffer', 'property', utils.getRandomResourceId('combine'));
+      const readFunctionId2 = utils.generateFunctionId('integer', 'property', 4);
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -609,6 +615,10 @@ describe('test/thing/tlv/parser.test.js', () => {
               valueType: 'boolean',
               value: true,
             }],
+          }, {
+            functionId: readFunctionId2,
+            valueType: 'integer',
+            value: 39069,
           }],
         },
       });
@@ -628,8 +638,8 @@ describe('test/thing/tlv/parser.test.js', () => {
       delete parsedOperations.code;
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
       assert.deepStrictEqual(params[0][subDeviceGroupId].functionId, subDeviceGroupId, '子设备产品组合功能点ID错误');
-      assert.deepStrictEqual(params[0][subDeviceGroupId].value[0].functionId, readFunctionId, '子设备组合功能点子功能错误');
-      assert.deepStrictEqual(params[0][subDeviceGroupId].value[0].value, true, '子设备组合功能点子功能值错误');
+      assert.deepStrictEqual(params[0][subDeviceGroupId].value[readFunctionId].value, true, '子设备组合功能点子功能错误');
+      assert.deepStrictEqual(params[0][readFunctionId2].value, 39069, '子设备组合功能点子功能值错误');
     });
   });
 });
