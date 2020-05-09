@@ -60,7 +60,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepStrictEqual(payload.readUInt8(), 1 + 0x80, '未获取到默认的版本号');
     });
 
-    it('assemble system request buffer', () => {
+    it('system request buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -79,7 +79,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepStrictEqual(payload.readUInt8(5), 0x20, '操作码错误');
     });
 
-    it('assemble system response buffer', () => {
+    it('system response buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -108,7 +108,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
     });
 
-    it('assemble notify request buffer', () => {
+    it('notify request buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -153,7 +153,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepEqual(groupId, parseInt(Object.keys(data.params)[0]), '功能点解析失败');
     });
 
-    it('assemble middle length string notify request buffer', () => {
+    it('middle length string notify request buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -195,7 +195,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepStrictEqual(middleLengthString, data.params[groupId].value[functionId].value, '功能点解析失败');
     });
 
-    it('assemble big length string notify request buffer', () => {
+    it('big length string notify request buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -237,7 +237,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepStrictEqual(bigLengthString, data.params[groupId].value[functionId].value, '功能点解析失败');
     });
 
-    it('assemble event notify request buffer', () => {
+    it('event notify request buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -319,7 +319,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepEqual(functionId, parseInt(Object.keys(data.params)[0]), '功能点解析失败');
     });
 
-    it('assemble read response buffer', () => {
+    it('read response buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -355,7 +355,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepEqual(functionId, parseInt(Object.keys(data.params)[0]), '功能点解析失败');
     });
 
-    it('assemble write request buffer', () => {
+    it('write request buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -396,7 +396,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepEqual('string-test', params[functionId].value, '功能点解析失败');
     });
 
-    it('assemble write response buffer', () => {
+    it('write response buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -427,7 +427,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
     });
 
-    it('assemble non-tls register response buffer', () => {
+    it('non-tls register response buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -504,7 +504,7 @@ describe('test/thing/tlv/packager.test.js', () => {
       );
     });
 
-    it('assemble tls register response buffer', () => {
+    it('tls register response buffer', () => {
       const version = utils.getRandomVersion(); // 版本号
       const id = utils.getRandomMsgId(true); // 消息id
       const operations = {
@@ -588,6 +588,51 @@ describe('test/thing/tlv/packager.test.js', () => {
         params[functionCRT].value,
         '证书功能点值解析失败'
       );
+    });
+
+    it('reserve function notify request buffer', () => {
+      const version = utils.getRandomVersion(); // 版本号
+      const id = utils.getRandomMsgId(true); // 消息id
+      const operations = {
+        operation: 'request', // 操作类型
+        type: 'device', // 设备类型
+        target: 'resource', // 操作对象 'resource'
+        method: 'notify', // 操作名
+      };
+      const groupId = utils.generateFunctionId('buffer', 'reserve', utils.getRandomResourceId('combine'));
+      const functionId = utils.generateFunctionId('exception', 'reserve', utils.getRandomResourceId());
+      const functionId2 = utils.generateFunctionId('string', 'reserve', utils.getRandomResourceId());
+      const payload = app.thing.tlv.packager.package({
+        version,
+        id,
+        operations,
+        data: {
+          groupId,
+          params: [{
+            functionId,
+            valueType: 'exception',
+            value: 5,
+          }, {
+            functionId: functionId2,
+            valueType: 'string',
+            value: utils.getFixedLengthString(100),
+          }],
+        },
+      }); // tlv数据封装
+      const {
+        version: parsedVersion,
+        id: parsedId,
+        operations: parsedOperations,
+        time,
+        data,
+      } = app.thing.tlv.parser.parse(payload); // tlv数据解析
+      assert(parsedVersion === version, '版本号错误');
+      assert(id === parsedId, '消息id错误');
+      assert(time && typeof time === 'number', '需包含时间戳');
+      assert.deepStrictEqual(parsedOperations.code, 3, '响应码错误');
+      delete parsedOperations.code;
+      assert.deepStrictEqual(operations, parsedOperations, 'operations解析错误');
+      assert.deepEqual(groupId, parseInt(Object.keys(data.params)[0]), '功能点解析失败');
     });
   });
 });
